@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.moneytracker.app.TestSupport.u
 import com.moneytracker.app.data.CategoryInput
 import com.moneytracker.app.data.ThemeMode
@@ -54,6 +55,32 @@ class UiFlowTest {
     private fun snapshot() = runBlocking { fin.currentSnapshot() }
     private fun enterAmount(v: String) = rule.onNodeWithTag("amountField").performTextReplacement(v)
     private fun saveForm() = rule.onNodeWithTag("saveButton").performScrollTo().performClick()
+
+    /** Save a valid form and wait until the form screen has completely closed. */
+    private fun saveAndClose() {
+        saveForm()
+        rule.waitForTagGone("amountField")
+        rule.waitForIdle()
+    }
+
+    private fun back(goneTag: String) {
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.waitForTagGone(goneTag)
+        rule.waitForIdle()
+    }
+
+    @get:Rule val failureCapture = object : org.junit.rules.TestWatcher() {
+        override fun failed(e: Throwable?, description: org.junit.runner.Description) {
+            runCatching {
+                val dir = java.io.File(InstrumentationRegistry.getInstrumentation().targetContext.filesDir, "screenshots")
+                dir.mkdirs()
+                val bmp = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+                java.io.FileOutputStream(java.io.File(dir, "FAILED_${description.methodName}.png")).use {
+                    bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 90, it)
+                }
+            }
+        }
+    }
     private fun clickTag(tag: String) {
         rule.waitForTag(tag)
         rule.onNodeWithTag(tag, useUnmergedTree = true).performClick()
@@ -64,7 +91,7 @@ class UiFlowTest {
         rule.waitForTag("amountField")
         enterAmount("500")
         rule.onNodeWithTag("descriptionField").performScrollTo().performTextInput("Salary")
-        saveForm()
+        saveAndClose()
         rule.waitForTagText("totalBalance", "500.000 OMR")
         rule.waitForTagText("availableBalance", "500.000 OMR")
 
@@ -74,24 +101,24 @@ class UiFlowTest {
         clickTag("catAdd")
         rule.waitForTag("amountField")
         enterAmount("100")
-        saveForm()
+        saveAndClose()
         rule.waitForTagText("categoryBalance", "100.000 OMR")
 
         clickTag("catSpend")
         rule.waitForTag("amountField")
         enterAmount("15")
         rule.onNodeWithTag("descriptionField").performScrollTo().performTextInput("Lunch")
-        saveForm()
+        saveAndClose()
         rule.waitForTagText("categoryBalance", "85.000 OMR")
 
-        rule.onNodeWithContentDescription("Back").performClick()
+        back("categoryBalance")
         clickTag("nav_home")
         rule.waitForTagText("totalBalance", "485.000 OMR")
         rule.waitForTagText("availableBalance", "400.000 OMR")
         rule.waitForTagText("allocatedBalance", "85.000 OMR")
 
         val s = snapshot()
-        assertEquals(4, s.transactions.size)
+        assertEquals(3, s.transactions.size) // income, allocation, expense
         assertEquals(u(485.0), s.balances.total)
     }
 
@@ -127,7 +154,7 @@ class UiFlowTest {
         rule.waitForTag("amountField")
         rule.waitForTagText("amountField", "100", timeoutMs = 5_000)
         enterAmount("120")
-        saveForm()
+        saveAndClose()
         rule.waitUntil(10_000) { snapshot().balances.total == u(120.0) }
         assertEquals(1, snapshot().transactions.size)
 
@@ -196,14 +223,14 @@ class UiFlowTest {
         clickTag("catTransfer")
         clickTag("dest_Shopping")
         enterAmount("30")
-        saveForm()
+        saveAndClose()
         rule.waitForTagText("categoryBalance", "70.000 OMR")
         val s = snapshot()
         val shopping = s.categories.first { it.name == "Shopping" }.id
         assertEquals(u(30.0), s.balances.of(shopping))
         assertEquals(u(300.0), s.balances.total)
 
-        rule.onNodeWithContentDescription("Back").performClick()
+        back("categoryBalance")
         clickTag("moneyTab_2")
         clickTag("newBudgetFab")
         rule.waitForText("Budget for which category?")
@@ -221,10 +248,11 @@ class UiFlowTest {
         rule.onNodeWithTag("categoryName").performTextInput("New phone")
         rule.onNodeWithTag("targetField").performScrollTo().performTextInput("300")
         rule.onNodeWithTag("saveCategory").performScrollTo().performClick()
+        rule.waitForTagGone("categoryName")
         clickTag("goalAdd_New phone")
         rule.waitForTag("amountField")
         enterAmount("50")
-        saveForm()
+        saveAndClose()
         rule.waitForText("50.000 OMR of 300.000 OMR")
         val phone = snapshot().categories.first { it.name == "New phone" }
         assertEquals(u(300.0), phone.targetAmount)
@@ -293,12 +321,12 @@ class UiFlowTest {
         clickTag("addMoney")
         rule.waitForTag("amountField")
         enterAmount("25")
-        saveForm()
+        saveAndClose()
         rule.waitForTagText("currentTotal", "25.000 OMR")
         clickTag("subtractMoney")
         rule.waitForTag("amountField")
         enterAmount("5")
-        saveForm()
+        saveAndClose()
         rule.waitForTagText("currentTotal", "20.000 OMR")
         assertEquals(2, snapshot().transactions.size)
         assertTrue(rule.onAllNodes(hasText("Money in")).fetchSemanticsNodes().isNotEmpty())

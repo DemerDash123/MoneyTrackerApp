@@ -42,3 +42,8 @@ fun ComposeTestRule.waitForTagText(tag: String, expected: String, timeoutMs: Lon
         onAllNodes(hasTestTag(tag) and hasText(expected), useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
     }
 }
+
+/** Waits until no node carries [tag] (e.g. a screen finished its exit animation). */
+fun ComposeTestRule.waitForTagGone(tag: String, timeoutMs: Long = 10_000) {
+    waitUntil(timeoutMs) { onAllNodes(hasTestTag(tag), useUnmergedTree = true).fetchSemanticsNodes().isEmpty() }
+}

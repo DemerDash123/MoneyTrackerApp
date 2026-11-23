@@ -55,8 +55,13 @@ class ScreenshotTour {
 
     private fun shot(name: String) {
         rule.waitForIdle()
-        Thread.sleep(900)
+        // Force a fresh frame so the capture never shows a stale surface.
+        rule.runOnUiThread { rule.activity.window.decorView.invalidate() }
         rule.waitForIdle()
+        Thread.sleep(1200)
+        rule.runOnUiThread { rule.activity.window.decorView.invalidate() }
+        rule.waitForIdle()
+        Thread.sleep(300)
         outDir.mkdirs()
         val bmp: Bitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
         FileOutputStream(File(outDir, "${prefix}_$name.png")).use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
@@ -67,18 +72,25 @@ class ScreenshotTour {
         rule.onNodeWithTag(tag, useUnmergedTree = true).performClick()
     }
 
-    private fun back() = rule.onNodeWithContentDescription("Back").performClick()
+    private fun back(goneTag: String) {
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.waitForTagGone(goneTag)
+        rule.waitForIdle()
+    }
 
     @Test fun tour() {
         rule.waitForTag("totalBalance")
+        rule.onNodeWithTag("homeList").performScrollToIndex(1)
+        rule.onNodeWithTag("homeList").performScrollToIndex(0)
         shot("01_home")
         rule.onNodeWithTag("homeList").performScrollToIndex(4)
         shot("02_home_spending")
+        rule.onNodeWithTag("homeList").performScrollToIndex(0)
 
         click("quickExpense")
         rule.waitForTag("amountField")
         shot("03_add_expense")
-        back()
+        back("amountField")
 
         click("nav_activity")
         rule.waitForTag("transactionList")
@@ -92,12 +104,13 @@ class ScreenshotTour {
             rule.waitForTag("detailEdit")
             shot("05_transaction_detail")
             androidx.test.espresso.Espresso.pressBack()
+            rule.waitForTagGone("detailEdit")
             rule.waitForIdle()
 
             click("openCalendar")
             rule.waitForTag("calendarGrid")
             shot("06_calendar")
-            back()
+            back("calendarGrid")
         }
 
         click("nav_money")
@@ -109,7 +122,7 @@ class ScreenshotTour {
             click("fund_Food")
             rule.waitForTag("categoryBalance")
             shot("08_category_detail")
-            back()
+            back("categoryBalance")
         }
 
         click("moneyTab_1")
@@ -146,7 +159,7 @@ class ScreenshotTour {
             click("totalBalance")
             rule.waitForTag("addMoney")
             shot("17_current_money")
-            back()
+            back("addMoney")
 
             // Dark mode
             TestSupport.container.settings.setTheme(ThemeMode.DARK)

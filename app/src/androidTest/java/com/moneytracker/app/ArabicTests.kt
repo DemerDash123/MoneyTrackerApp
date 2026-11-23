@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -132,7 +133,7 @@ class ArabicFlowTest {
         compose.onNodeWithTag("descriptionField").performScrollTo().performTextInput("راتب")
         saveAndClose()
         compose.waitForTagContains("totalBalance", "500.000 OMR")
-        compose.waitForText("راتب")
+        assertTrue(snapshot().transactions.any { it.description == "راتب" && it.amount == u(500.0) })
 
         compose.clickTag("nav_money")
         compose.waitForText(ArStrings.tabCategories)
@@ -195,6 +196,7 @@ class ArabicFlowTest {
 
         compose.clickTag("nav_settings")
         compose.waitForText(ArStrings.yourData)
+        compose.onNodeWithTag("settingsList").performScrollToNode(androidx.compose.ui.test.hasTestTag("resetData"))
         compose.waitForText(ArStrings.resetAllData)
     }
 }

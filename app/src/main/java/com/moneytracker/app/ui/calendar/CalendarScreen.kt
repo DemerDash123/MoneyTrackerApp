@@ -247,6 +247,8 @@ private fun MonthGrid(s: CalendarState, onSelect: (LocalDate) -> Unit) {
                                     Text(
                                         money.compact(net),
                                         fontSize = 9.sp,
+                                        // keep "-12" as one left-to-right number in Arabic
+                                        style = LocalTextStyle.current.copy(textDirection = androidx.compose.ui.text.style.TextDirection.Ltr),
                                         maxLines = 1,
                                         color = if (net > 0) fc.income else fc.expense,
                                     )

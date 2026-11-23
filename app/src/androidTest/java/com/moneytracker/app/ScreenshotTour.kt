@@ -38,7 +38,17 @@ import java.time.ZoneId
  */
 @RunWith(AndroidJUnit4::class)
 class ScreenshotTour {
-    @get:Rule val rule = createAndroidComposeRule<MainActivity>()
+    private val lang = TestSupport.languageArg()
+    private val isAr = lang == com.moneytracker.app.i18n.AppLanguage.AR
+    private fun t(en: String, ar: String) = if (isAr) ar else en
+
+    private val rule = createAndroidComposeRule<MainActivity>()
+
+    @get:Rule val chain: org.junit.rules.RuleChain = org.junit.rules.RuleChain
+        .outerRule(BeforeLaunch { TestSupport.resetApp(ThemeMode.LIGHT, lang) })
+        .around(rule)
+
+    private val foodName get() = t("Food", "طعام")
 
     private val args = InstrumentationRegistry.getArguments()
     private val prefix = args.getString("prefix") ?: "phone"
@@ -46,12 +56,12 @@ class ScreenshotTour {
     private val outDir = File(InstrumentationRegistry.getInstrumentation().targetContext.filesDir, "screenshots")
 
     @Before fun seed() {
-        TestSupport.resetApp(ThemeMode.LIGHT)
+        TestSupport.resetApp(ThemeMode.LIGHT, lang)
         seedHistory()
         rule.waitForIdle()
     }
 
-    @After fun cleanup() = TestSupport.resetApp()
+    @After fun cleanup() = TestSupport.resetData()
 
     private fun shot(name: String) {
         rule.waitForIdle()
@@ -73,7 +83,7 @@ class ScreenshotTour {
     }
 
     private fun back(goneTag: String) {
-        rule.onNodeWithContentDescription("Back").performClick()
+        rule.onNodeWithContentDescription(com.moneytracker.app.i18n.S.back).performClick()
         rule.waitForTagGone(goneTag)
         rule.waitForIdle()
     }
@@ -118,8 +128,8 @@ class ScreenshotTour {
         shot("07_my_money")
 
         if (full) {
-            rule.onNodeWithTag("fundsList").performScrollToNode(hasTestTag("fund_Food"))
-            click("fund_Food")
+            rule.onNodeWithTag("fundsList").performScrollToNode(hasTestTag("fund_$foodName"))
+            click("fund_$foodName")
             rule.waitForTag("categoryBalance")
             shot("08_category_detail")
             back("categoryBalance")
@@ -185,15 +195,15 @@ class ScreenshotTour {
             val dt = LocalDateTime.of(d, LocalTime.of(hour, 15))
             return dt.atZone(zone).toInstant().toEpochMilli()
         }
-        val savings = f.createCategory(CategoryInput("Emergency Fund", "emergency", 0xFFEF4444.toInt(), targetAmount = u(1000.0)))
-        val food = f.createCategory(CategoryInput("Food", "restaurant", 0xFFF59E0B.toInt(), monthlyLimit = u(120.0)))
-        val shopping = f.createCategory(CategoryInput("Shopping", "shopping", 0xFFEC4899.toInt(), monthlyLimit = u(60.0)))
-        val transport = f.createCategory(CategoryInput("Transportation", "car", 0xFF3B82F6.toInt(), monthlyLimit = u(45.0)))
-        val education = f.createCategory(CategoryInput("Education", "school", 0xFF8B5CF6.toInt()))
+        val savings = f.createCategory(CategoryInput(t("Emergency Fund", "صندوق الطوارئ"), "emergency", 0xFFEF4444.toInt(), targetAmount = u(1000.0)))
+        val food = f.createCategory(CategoryInput(t("Food", "طعام"), "restaurant", 0xFFF59E0B.toInt(), monthlyLimit = u(120.0)))
+        val shopping = f.createCategory(CategoryInput(t("Shopping", "تسوق"), "shopping", 0xFFEC4899.toInt(), monthlyLimit = u(60.0)))
+        val transport = f.createCategory(CategoryInput(t("Transportation", "مواصلات"), "car", 0xFF3B82F6.toInt(), monthlyLimit = u(45.0)))
+        val education = f.createCategory(CategoryInput(t("Education", "تعليم"), "school", 0xFF8B5CF6.toInt()))
         val phone = f.createCategory(
-            CategoryInput("New Phone", "phone", 0xFF14B8A6.toInt(), targetAmount = u(320.0), targetDate = today.plusMonths(4)),
+            CategoryInput(t("New Phone", "هاتف جديد"), "phone", 0xFF14B8A6.toInt(), targetAmount = u(320.0), targetDate = today.plusMonths(4)),
         )
-        val fun_ = f.createCategory(CategoryInput("Entertainment", "movie", 0xFF6366F1.toInt(), monthlyLimit = u(40.0)))
+        val fun_ = f.createCategory(CategoryInput(t("Entertainment", "ترفيه"), "movie", 0xFF6366F1.toInt(), monthlyLimit = u(40.0)))
 
         suspend fun tx(type: TxType, amount: Double, from: Long?, to: Long?, desc: String, d: LocalDate, hour: Int = 12) {
             if (d.isAfter(today)) return
@@ -204,7 +214,7 @@ class ScreenshotTour {
             val ym = YearMonth.from(today).minusMonths(back.toLong())
             fun day(n: Int) = ym.atDay(minOf(n, ym.lengthOfMonth()))
             val scale = 1.0 + back * 0.08
-            tx(TxType.INCOME, 850.0, null, null, "Salary", day(1), 9)
+            tx(TxType.INCOME, 850.0, null, null, t("Salary", "راتب"), day(1), 9)
             tx(TxType.TRANSFER, 150.0, null, savings, "", day(1), 10)
             tx(TxType.TRANSFER, 120.0, null, food, "", day(1), 10)
             tx(TxType.TRANSFER, 60.0, null, shopping, "", day(1), 10)
@@ -212,26 +222,26 @@ class ScreenshotTour {
             tx(TxType.TRANSFER, 40.0, null, phone, "", day(1), 11)
             tx(TxType.TRANSFER, 35.0, null, fun_, "", day(1), 11)
             tx(TxType.TRANSFER, 30.0, null, education, "", day(1), 11)
-            tx(TxType.EXPENSE, 18.750 * scale, food, null, "Lulu Hypermarket", day(3))
-            tx(TxType.EXPENSE, 6.5, food, null, "Shawarma dinner", day(5), 20)
-            tx(TxType.EXPENSE, 12.0, transport, null, "Fuel", day(6), 8)
-            tx(TxType.EXPENSE, 22.4 * scale, shopping, null, "Clothes", day(8), 17)
-            tx(TxType.EXPENSE, 9.0, fun_, null, "Cinema", day(9), 21)
-            if (back == 1) tx(TxType.INCOME, 120.0, null, null, "Freelance logo design", day(12), 15)
-            tx(TxType.EXPENSE, 24.3 * scale, food, null, "Groceries", day(13))
-            tx(TxType.EXPENSE, 12.0, transport, null, "Fuel", day(15), 8)
-            tx(TxType.EXPENSE, 15.0, education, null, "Online course", day(16), 19)
-            tx(TxType.EXPENSE, 4.2, null, null, "Coffee", day(17), 9)
-            tx(TxType.EXPENSE, 31.6 * scale, food, null, "Restaurant with family", day(19), 21)
-            tx(TxType.EXPENSE, 14.0 + back * 6, shopping, null, "Headphones", day(21), 18)
-            tx(TxType.EXPENSE, 11.5, transport, null, "Car wash & fuel", day(22), 8)
-            if (back == 0) tx(TxType.INCOME, 25.0, null, null, "Sold old books", day(18), 16)
-            tx(TxType.EXPENSE, 7.0, fun_, null, "Games", day(23), 20)
-            tx(TxType.EXPENSE, 16.9 * scale, food, null, "Groceries", day(24), 12)
-            tx(TxType.EXPENSE, 8.0, null, null, "Gift for friend", day(25), 13)
+            tx(TxType.EXPENSE, 18.750 * scale, food, null, t("Lulu Hypermarket", "لولو هايبرماركت"), day(3))
+            tx(TxType.EXPENSE, 6.5, food, null, t("Shawarma dinner", "عشاء شاورما"), day(5), 20)
+            tx(TxType.EXPENSE, 12.0, transport, null, t("Fuel", "وقود"), day(6), 8)
+            tx(TxType.EXPENSE, 22.4 * scale, shopping, null, t("Clothes", "ملابس"), day(8), 17)
+            tx(TxType.EXPENSE, 9.0, fun_, null, t("Cinema", "سينما"), day(9), 21)
+            if (back == 1) tx(TxType.INCOME, 120.0, null, null, t("Freelance logo design", "تصميم شعار (عمل حر)"), day(12), 15)
+            tx(TxType.EXPENSE, 24.3 * scale, food, null, t("Groceries", "بقالة"), day(13))
+            tx(TxType.EXPENSE, 12.0, transport, null, t("Fuel", "وقود"), day(15), 8)
+            tx(TxType.EXPENSE, 15.0, education, null, t("Online course", "دورة عبر الإنترنت"), day(16), 19)
+            tx(TxType.EXPENSE, 4.2, null, null, t("Coffee", "قهوة"), day(17), 9)
+            tx(TxType.EXPENSE, 31.6 * scale, food, null, t("Restaurant with family", "مطعم مع العائلة"), day(19), 21)
+            tx(TxType.EXPENSE, 14.0 + back * 6, shopping, null, t("Headphones", "سماعات"), day(21), 18)
+            tx(TxType.EXPENSE, 11.5, transport, null, t("Car wash & fuel", "غسيل السيارة ووقود"), day(22), 8)
+            if (back == 0) tx(TxType.INCOME, 25.0, null, null, t("Sold old books", "بيع كتب قديمة"), day(18), 16)
+            tx(TxType.EXPENSE, 7.0, fun_, null, t("Games", "ألعاب"), day(23), 20)
+            tx(TxType.EXPENSE, 16.9 * scale, food, null, t("Groceries", "بقالة"), day(24), 12)
+            tx(TxType.EXPENSE, 8.0, null, null, t("Gift for friend", "هدية لصديق"), day(25), 13)
         }
         // A move between categories, and a deliberate over-budget month for Shopping
-        tx(TxType.TRANSFER, 20.0, fun_, shopping, "Moved for a sale", today, 9)
-        tx(TxType.EXPENSE, 30.0, shopping, null, "Weekend sale", today, 10)
+        tx(TxType.TRANSFER, 20.0, fun_, shopping, t("Moved for a sale", "نقل لأجل التخفيضات"), today, 9)
+        tx(TxType.EXPENSE, 30.0, shopping, null, t("Weekend sale", "تخفيضات نهاية الأسبوع"), today, 10)
     }
 }

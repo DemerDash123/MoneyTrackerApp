@@ -40,6 +40,15 @@ import androidx.navigation.navArgument
 import com.moneytracker.app.AppContainer
 import com.moneytracker.app.MoneyTrackerApplication
 import com.moneytracker.app.core.MoneyFormatter
+import com.moneytracker.app.i18n.AppLanguage
+import com.moneytracker.app.i18n.S
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import com.moneytracker.app.data.db.TxType
 import com.moneytracker.app.ui.addedit.AddEditTransactionScreen
 import com.moneytracker.app.ui.addedit.AddEditViewModel
@@ -107,17 +116,18 @@ object Routes {
 
 private data class TopLevel(val route: String, val pattern: String, val label: String, val icon: ImageVector, val tag: String)
 
-private val topLevel = listOf(
-    TopLevel(Routes.HOME, Routes.HOME, "Home", Icons.Rounded.Home, "nav_home"),
-    TopLevel(Routes.TRANSACTIONS, Routes.TRANSACTIONS, "Activity", Icons.Rounded.Receipt, "nav_activity"),
-    TopLevel(Routes.MONEY, Routes.MONEY, "My Money", Icons.Rounded.AccountBalanceWallet, "nav_money"),
-    TopLevel(Routes.stats(0), "stats?tab={tab}&ym={ym}", "Statistics", Icons.Rounded.Insights, "nav_stats"),
-    TopLevel(Routes.SETTINGS, Routes.SETTINGS, "Settings", Icons.Rounded.Settings, "nav_settings"),
+private fun topLevelItems() = listOf(
+    TopLevel(Routes.HOME, Routes.HOME, S.navHome, Icons.Rounded.Home, "nav_home"),
+    TopLevel(Routes.TRANSACTIONS, Routes.TRANSACTIONS, S.navActivity, Icons.Rounded.Receipt, "nav_activity"),
+    TopLevel(Routes.MONEY, Routes.MONEY, S.navMoney, Icons.Rounded.AccountBalanceWallet, "nav_money"),
+    TopLevel(Routes.stats(0), "stats?tab={tab}&ym={ym}", S.navStats, Icons.Rounded.Insights, "nav_stats"),
+    TopLevel(Routes.SETTINGS, Routes.SETTINGS, S.navSettings, Icons.Rounded.Settings, "nav_settings"),
 )
 
 @Composable
 fun MoneyTrackerRoot() {
     val nav = rememberNavController()
+    val topLevel = remember { topLevelItems() }
     val backStack by nav.currentBackStackEntryAsState()
     val destination = backStack?.destination
     val showBar = topLevel.any { t -> destination?.hierarchy?.any { it.route == t.pattern } == true }
@@ -149,6 +159,7 @@ fun MoneyTrackerRoot() {
             }
         },
     ) { padding ->
+        LanguagePickerOnFirstLaunch()
         // On tablets keep content at a comfortable reading width.
         Box(
             Modifier.fillMaxSize().padding(bottom = padding.calculateBottomPadding()),
@@ -208,4 +219,27 @@ private fun AppNavHost(nav: NavHostController, modifier: Modifier) {
             ),
         ) { CategoryEditScreen(nav) }
     }
+}
+
+/** Shown once, the first time the app opens: pick English or Arabic (changeable later in Settings). */
+@Composable
+private fun LanguagePickerOnFirstLaunch() {
+    val app = LocalContext.current.applicationContext as MoneyTrackerApplication
+    val settings by app.container.settings.settings.collectAsStateWithLifecycle()
+    if (settings.languageChosen) return
+    AlertDialog(
+        onDismissRequest = {},
+        title = { Text("Choose your language \u00B7 \u0627\u062E\u062A\u0631 \u0644\u063A\u062A\u0643") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                AppLanguage.entries.forEach { lang ->
+                    Button(
+                        onClick = { app.container.settings.setLanguage(lang) },
+                        modifier = Modifier.fillMaxWidth().height(52.dp).testTag("pickLanguage_${lang.name}"),
+                    ) { Text(lang.nativeName, style = MaterialTheme.typography.titleMedium) }
+                }
+            }
+        },
+        confirmButton = {},
+    )
 }

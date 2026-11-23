@@ -32,6 +32,7 @@ import com.moneytracker.app.domain.Ledger
 import com.moneytracker.app.domain.PeriodSummary
 import com.moneytracker.app.domain.Reports
 import com.moneytracker.app.ui.AppViewModelProvider
+import com.moneytracker.app.i18n.S
 import com.moneytracker.app.ui.LocalMoney
 import com.moneytracker.app.ui.Routes
 import com.moneytracker.app.ui.components.*
@@ -50,10 +51,18 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneOffset
 
-enum class PeriodFilter(val label: String) {
-    ALL("All time"), TODAY("Today"), WEEK("This week"), MONTH("This month"),
-    LAST_MONTH("Last month"), YEAR("This year"), CUSTOM("Custom range"),
-}
+enum class PeriodFilter { ALL, TODAY, WEEK, MONTH, LAST_MONTH, YEAR, CUSTOM }
+
+val PeriodFilter.label: String
+    get() = when (this) {
+        PeriodFilter.ALL -> S.periodAllTime
+        PeriodFilter.TODAY -> S.today
+        PeriodFilter.WEEK -> S.periodThisWeek
+        PeriodFilter.MONTH -> S.thisMonth
+        PeriodFilter.LAST_MONTH -> S.periodLastMonth
+        PeriodFilter.YEAR -> S.periodThisYear
+        PeriodFilter.CUSTOM -> S.periodCustom
+    }
 
 sealed interface CategoryFilter {
     data object All : CategoryFilter
@@ -149,7 +158,7 @@ class TransactionsViewModel(private val container: AppContainer) : ViewModel() {
         viewModelScope.launch {
             message.value = try {
                 container.finance.deleteTransaction(id)
-                "Transaction deleted"
+                S.transactionDeleted
             } catch (e: FinanceException) {
                 e.message
             }
@@ -178,10 +187,10 @@ fun TransactionsScreen(nav: NavController, vm: TransactionsViewModel = viewModel
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
-                title = { Text("Transactions") },
+                title = { Text(S.transactions) },
                 actions = {
                     IconButton(onClick = { nav.navigate(Routes.CALENDAR) }, modifier = Modifier.testTag("openCalendar")) {
-                        Icon(Icons.Rounded.CalendarMonth, contentDescription = "Calendar view")
+                        Icon(Icons.Rounded.CalendarMonth, contentDescription = S.calendarView)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
@@ -191,7 +200,7 @@ fun TransactionsScreen(nav: NavController, vm: TransactionsViewModel = viewModel
             ExtendedFloatingActionButton(
                 onClick = { nav.navigate(Routes.add(TxType.EXPENSE)) },
                 icon = { Icon(Icons.Rounded.Add, null) },
-                text = { Text("Add") },
+                text = { Text(S.add) },
                 modifier = Modifier.testTag("addTransactionFab"),
             )
         },
@@ -202,11 +211,11 @@ fun TransactionsScreen(nav: NavController, vm: TransactionsViewModel = viewModel
                 value = filters.query,
                 onValueChange = vm::setQuery,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("searchField"),
-                placeholder = { Text("Search description, category, amount…") },
+                placeholder = { Text(S.searchHint) },
                 leadingIcon = { Icon(Icons.Rounded.Search, null) },
                 trailingIcon = {
                     if (filters.query.isNotEmpty()) {
-                        IconButton(onClick = { vm.setQuery("") }) { Icon(Icons.Rounded.Clear, "Clear search") }
+                        IconButton(onClick = { vm.setQuery("") }) { Icon(Icons.Rounded.Clear, S.clearSearch) }
                     }
                 },
                 singleLine = true,
@@ -221,10 +230,10 @@ fun TransactionsScreen(nav: NavController, vm: TransactionsViewModel = viewModel
             if (s.items.isEmpty()) {
                 EmptyState(
                     Icons.Rounded.SearchOff,
-                    if (s.snapshot.transactions.isEmpty()) "No transactions yet" else "Nothing matches",
-                    if (s.snapshot.transactions.isEmpty()) "Tap Add to record income, an expense or a transfer."
-                    else "Try another search or clear the filters.",
-                    actionLabel = if (s.snapshot.transactions.isEmpty()) null else "Clear filters",
+                    if (s.snapshot.transactions.isEmpty()) S.noTransactionsYet else S.nothingMatches,
+                    if (s.snapshot.transactions.isEmpty()) S.tapAddToRecord
+                    else S.tryAnotherSearch,
+                    actionLabel = if (s.snapshot.transactions.isEmpty()) null else S.clearFilters,
                     onAction = if (s.snapshot.transactions.isEmpty()) null else vm::clear,
                 )
             } else {
@@ -284,9 +293,9 @@ fun TransactionsScreen(nav: NavController, vm: TransactionsViewModel = viewModel
                         )
                     }
                     showRange = false
-                }) { Text("Apply") }
+                }) { Text(S.apply) }
             },
-            dismissButton = { TextButton(onClick = { showRange = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { showRange = false }) { Text(S.cancel) } },
         ) {
             DateRangePicker(rangeState, Modifier.weight(1f))
         }
@@ -331,7 +340,7 @@ private fun FilterBar(f: TxFilters, snapshot: FinanceSnapshot?, vm: Transactions
                 }
             }
         }
-        listOf<Pair<TxType?, String>>(null to "All", TxType.INCOME to "Income", TxType.EXPENSE to "Expenses", TxType.TRANSFER to "Transfers")
+        listOf<Pair<TxType?, String>>(null to S.all, TxType.INCOME to S.income, TxType.EXPENSE to S.expenses, TxType.TRANSFER to S.transfers)
             .forEach { (t, label) ->
                 FilterChip(
                     selected = f.type == t,
@@ -342,9 +351,9 @@ private fun FilterBar(f: TxFilters, snapshot: FinanceSnapshot?, vm: Transactions
             }
         Box {
             val catLabel = when (val c = f.category) {
-                CategoryFilter.All -> "All categories"
-                CategoryFilter.Available -> "Available"
-                is CategoryFilter.One -> snapshot?.let { placeName(it, c.id) } ?: "Category"
+                CategoryFilter.All -> S.allCategories
+                CategoryFilter.Available -> S.available
+                is CategoryFilter.One -> snapshot?.let { placeName(it, c.id) } ?: S.category
             }
             FilterChip(
                 selected = f.category != CategoryFilter.All,
@@ -355,11 +364,11 @@ private fun FilterBar(f: TxFilters, snapshot: FinanceSnapshot?, vm: Transactions
                 modifier = Modifier.testTag("categoryFilter"),
             )
             DropdownMenu(expanded = catMenu, onDismissRequest = { catMenu = false }) {
-                DropdownMenuItem(text = { Text("All categories") }, onClick = { catMenu = false; vm.setCategory(CategoryFilter.All) })
-                DropdownMenuItem(text = { Text("Available") }, onClick = { catMenu = false; vm.setCategory(CategoryFilter.Available) })
+                DropdownMenuItem(text = { Text(S.allCategories) }, onClick = { catMenu = false; vm.setCategory(CategoryFilter.All) })
+                DropdownMenuItem(text = { Text(S.available) }, onClick = { catMenu = false; vm.setCategory(CategoryFilter.Available) })
                 snapshot?.categories?.forEach { c ->
                     DropdownMenuItem(
-                        text = { Text(if (c.archived) "${c.name} (deleted)" else c.name) },
+                        text = { Text(if (c.archived) S.deletedName(c.name) else c.name) },
                         leadingIcon = { Icon(CategoryIcons.get(c.icon), null, tint = Color(c.color)) },
                         onClick = { catMenu = false; vm.setCategory(CategoryFilter.One(c.id)) },
                     )
@@ -377,9 +386,9 @@ private fun SummaryStrip(s: TransactionsState) {
         Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        StatBlock("${s.total} transactions", "", Modifier.weight(1f), valueStyle = MaterialTheme.typography.bodySmall)
-        StatBlock("In", money.format(s.summary.income), valueColor = fc.income, valueStyle = MaterialTheme.typography.bodyMedium)
-        StatBlock("Out", money.format(s.summary.expense), valueColor = fc.expense, valueStyle = MaterialTheme.typography.bodyMedium)
+        StatBlock(S.transactionsCount(s.total), "", Modifier.weight(1f), valueStyle = MaterialTheme.typography.bodySmall)
+        StatBlock(S.moneyIn, money.format(s.summary.income), valueColor = fc.income, valueStyle = MaterialTheme.typography.bodyMedium)
+        StatBlock(S.moneyOut, money.format(s.summary.expense), valueColor = fc.expense, valueStyle = MaterialTheme.typography.bodyMedium)
     }
 }
 
@@ -388,8 +397,8 @@ private fun DayHeader(h: TxListItem.Header) {
     val money = LocalMoney.current
     val today = LocalDate.now()
     val label = when (h.date) {
-        today -> "Today"
-        today.minusDays(1) -> "Yesterday"
+        today -> S.today
+        today.minusDays(1) -> S.yesterday
         else -> h.date.format(Dates.dayHeader)
     }
     Row(Modifier.fillMaxWidth().padding(start = 6.dp, end = 6.dp, top = 14.dp, bottom = 2.dp)) {
@@ -423,7 +432,7 @@ fun TransactionDetailSheet(
                 Column(Modifier.weight(1f)) {
                     Text(transactionTitle(t, snapshot), style = MaterialTheme.typography.titleMedium)
                     Text(
-                        t.type.name.lowercase().replaceFirstChar { it.uppercase() },
+                        S.typeName(t.type),
                         style = MaterialTheme.typography.bodySmall,
                         color = typeColor(t.type),
                     )
@@ -442,17 +451,17 @@ fun TransactionDetailSheet(
             )
             Spacer(Modifier.height(16.dp))
             val dt = Dates.localDateTime(t.timestamp)
-            DetailRow("Date", "${dt.toLocalDate().format(Dates.fullDate)} at ${dt.toLocalTime().format(Dates.time)}")
+            DetailRow(S.dateLabel, S.dateAt(dt.toLocalDate().format(Dates.fullDate), dt.toLocalTime().format(Dates.time)))
             when (t.type) {
-                TxType.INCOME -> DetailRow("Added to", placeName(snapshot, t.categoryId))
-                TxType.EXPENSE -> DetailRow("Paid from", placeName(snapshot, t.categoryId))
+                TxType.INCOME -> DetailRow(S.addedTo, placeName(snapshot, t.categoryId))
+                TxType.EXPENSE -> DetailRow(S.paidFrom, placeName(snapshot, t.categoryId))
                 TxType.TRANSFER -> {
-                    DetailRow("From", placeName(snapshot, t.categoryId))
-                    DetailRow("To", placeName(snapshot, t.toCategoryId))
+                    DetailRow(S.from, placeName(snapshot, t.categoryId))
+                    DetailRow(S.to, placeName(snapshot, t.toCategoryId))
                 }
             }
-            if (t.description.isNotBlank()) DetailRow("Description", t.description)
-            if (t.note.isNotBlank()) DetailRow("Notes", t.note)
+            if (t.description.isNotBlank()) DetailRow(S.description, t.description)
+            if (t.note.isNotBlank()) DetailRow(S.notes, t.note)
             Spacer(Modifier.height(20.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(
@@ -462,21 +471,21 @@ fun TransactionDetailSheet(
                 ) {
                     Icon(Icons.Rounded.Delete, null)
                     Spacer(Modifier.width(6.dp))
-                    Text("Delete")
+                    Text(S.delete)
                 }
                 Button(onClick = onEdit, modifier = Modifier.weight(1f).testTag("detailEdit")) {
                     Icon(Icons.Rounded.Edit, null)
                     Spacer(Modifier.width(6.dp))
-                    Text("Edit")
+                    Text(S.edit)
                 }
             }
         }
     }
     if (confirm) {
         ConfirmDialog(
-            "Delete transaction?",
-            "Its effect on your balances will be reversed. This can't be undone.",
-            "Delete",
+            S.deleteTxTitle,
+            S.deleteTxMessage,
+            S.delete,
             onConfirm = {
                 confirm = false
                 onDelete()

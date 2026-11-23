@@ -69,17 +69,23 @@ adb install -r -t app/build/outputs/apk/androidTest/debug/app-debug-androidTest.
 instr repository com.moneytracker.app.FinanceRepositoryTest
 # 2. End-to-end UI flows
 instr ui_flows com.moneytracker.app.UiFlowTest
-# 3. Screenshot tour (every screen, light + dark) on a phone-size screen
-instr screens_phone com.moneytracker.app.ScreenshotTour -e prefix phone -e full true
+# 2b. Arabic: first-launch picker, switching both ways, and money flows in the RTL interface
+instr language_first_launch com.moneytracker.app.FirstLaunchLanguageTest
+instr language_switch com.moneytracker.app.LanguageSwitchTest
+instr arabic_flows com.moneytracker.app.ArabicFlowTest
+# 3. Screenshot tour (every screen, light + dark) on a phone-size screen, in English and Arabic
+instr screens_phone com.moneytracker.app.ScreenshotTour -e prefix phone -e full true -e lang en
+instr screens_phone_ar com.moneytracker.app.ScreenshotTour -e prefix phone_ar -e full true -e lang ar
 pull_screens
 
 # 4. Different screen sizes
 adb shell wm size 720x1280
 adb shell wm density 320
-instr screens_small com.moneytracker.app.ScreenshotTour -e prefix small -e full false
+instr screens_small com.moneytracker.app.ScreenshotTour -e prefix small -e full false -e lang en
+instr screens_small_ar com.moneytracker.app.ScreenshotTour -e prefix small_ar -e full false -e lang ar
 adb shell wm size 1600x2560
 adb shell wm density 320
-instr screens_tablet com.moneytracker.app.ScreenshotTour -e prefix tablet -e full false
+instr screens_tablet com.moneytracker.app.ScreenshotTour -e prefix tablet -e full false -e lang en
 adb shell wm size reset
 adb shell wm density reset
 pull_screens

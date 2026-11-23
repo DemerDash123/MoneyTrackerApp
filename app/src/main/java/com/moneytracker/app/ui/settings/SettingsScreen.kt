@@ -32,6 +32,8 @@ import com.moneytracker.app.data.ThemeMode
 import com.moneytracker.app.data.db.Category
 import com.moneytracker.app.domain.FinanceException
 import com.moneytracker.app.ui.AppViewModelProvider
+import com.moneytracker.app.i18n.AppLanguage
+import com.moneytracker.app.i18n.S
 import com.moneytracker.app.ui.components.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -52,15 +54,16 @@ class SettingsViewModel(private val container: AppContainer) : ViewModel() {
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0 to 0)
 
     fun setTheme(m: ThemeMode) = container.settings.setTheme(m)
+    fun setLanguage(l: AppLanguage) = container.settings.setLanguage(l)
 
     fun setCurrency(code: String, decimals: Int) {
         val clean = code.trim().uppercase()
         if (clean.isEmpty()) {
-            message.value = "Enter a currency code or symbol"
+            message.value = S.enterCurrency
             return
         }
         container.settings.setCurrency(clean, decimals)
-        message.value = "Currency updated"
+        message.value = S.currencyUpdated
     }
 
     private fun run(success: String, block: suspend () -> Unit) {
@@ -71,16 +74,16 @@ class SettingsViewModel(private val container: AppContainer) : ViewModel() {
             } catch (e: FinanceException) {
                 e.message
             } catch (e: Exception) {
-                "Something went wrong: ${e.message}"
+                S.somethingWrong(e.message ?: "")
             }
         }
     }
 
-    fun backup(uri: Uri) = run("Backup saved") { container.backup.exportBackup(uri) }
-    fun restore(uri: Uri) = run("Backup restored") { container.backup.restoreBackup(uri) }
-    fun exportCsv(uri: Uri) = run("Transactions exported to CSV") { container.backup.exportCsv(uri) }
-    fun restoreCategory(id: Long) = run("Category restored") { container.finance.restoreCategory(id) }
-    fun resetAll() = run("All financial data was deleted") { container.finance.resetAll() }
+    fun backup(uri: Uri) = run(S.backupSaved) { container.backup.exportBackup(uri) }
+    fun restore(uri: Uri) = run(S.backupRestored) { container.backup.restoreBackup(uri) }
+    fun exportCsv(uri: Uri) = run(S.csvExported) { container.backup.exportCsv(uri) }
+    fun restoreCategory(id: Long) = run(S.categoryRestored) { container.finance.restoreCategory(id) }
+    fun resetAll() = run(S.allDataDeleted) { container.finance.resetAll() }
 }
 
 @Composable
@@ -117,7 +120,7 @@ fun SettingsScreen(nav: NavController, vm: SettingsViewModel = viewModel(factory
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(S.navSettings) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
         },
@@ -128,11 +131,35 @@ fun SettingsScreen(nav: NavController, vm: SettingsViewModel = viewModel(factory
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item {
-                AppCard {
-                    Text("Appearance", style = MaterialTheme.typography.titleMedium)
+                AppCard(Modifier.testTag("languageCard")) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconBadge(Icons.Rounded.Translate, MaterialTheme.colorScheme.primary, size = 38.dp)
+                        Spacer(Modifier.width(12.dp))
+                        Column {
+                            Text("${S.language} \u00B7 ${if (settings.language == AppLanguage.AR) "Language" else "\u0627\u0644\u0644\u063A\u0629"}", style = MaterialTheme.typography.titleMedium)
+                            Text(S.languageHint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
                     Spacer(Modifier.height(10.dp))
                     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                        val modes = listOf(ThemeMode.SYSTEM to "System", ThemeMode.LIGHT to "Light", ThemeMode.DARK to "Dark")
+                        val langs = AppLanguage.entries
+                        langs.forEachIndexed { i, l ->
+                            SegmentedButton(
+                                selected = settings.language == l,
+                                onClick = { vm.setLanguage(l) },
+                                shape = SegmentedButtonDefaults.itemShape(i, langs.size),
+                                modifier = Modifier.testTag("lang_${l.name}"),
+                            ) { Text(l.nativeName) }
+                        }
+                    }
+                }
+            }
+            item {
+                AppCard {
+                    Text(S.appearance, style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(10.dp))
+                    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                        val modes = listOf(ThemeMode.SYSTEM to S.themeSystem, ThemeMode.LIGHT to S.themeLight, ThemeMode.DARK to S.themeDark)
                         modes.forEachIndexed { i, (m, label) ->
                             SegmentedButton(
                                 selected = settings.theme == m,
@@ -148,31 +175,31 @@ fun SettingsScreen(nav: NavController, vm: SettingsViewModel = viewModel(factory
                 AppCard(contentPadding = PaddingValues(vertical = 6.dp)) {
                     SettingRow(
                         Icons.Rounded.CurrencyExchange,
-                        "Currency",
-                        "${settings.currency} · ${settings.decimals} decimal places",
+                        S.currency,
+                        S.currencySummary(settings.currency, settings.decimals),
                         Modifier.testTag("currencySetting"),
                     ) { currencyDialog = true }
                 }
             }
             item {
                 AppCard(contentPadding = PaddingValues(vertical = 6.dp)) {
-                    Text("Your data", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 18.dp, vertical = 8.dp))
+                    Text(S.yourData, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 18.dp, vertical = 8.dp))
                     Text(
-                        "${counts.first} transactions · ${counts.second} categories. Everything is stored only on this phone and works offline.",
+                        S.dataSummary(counts.first, counts.second),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 18.dp),
                     )
-                    SettingRow(Icons.Rounded.Backup, "Back up", "Save all data to a file you choose") {
+                    SettingRow(Icons.Rounded.Backup, S.backUp, S.backUpSub) {
                         backupLauncher.launch("MoneyTracker-backup-$today.json")
                     }
-                    SettingRow(Icons.Rounded.Restore, "Restore", "Replace current data with a backup file") {
+                    SettingRow(Icons.Rounded.Restore, S.restore, S.restoreSub) {
                         restoreLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
                     }
-                    SettingRow(Icons.Rounded.TableChart, "Export transactions (CSV)", "Open in Excel or Google Sheets") {
+                    SettingRow(Icons.Rounded.TableChart, S.exportCsv, S.exportCsvSub) {
                         csvLauncher.launch("MoneyTracker-transactions-$today.csv")
                     }
-                    SettingRow(Icons.Rounded.PictureAsPdf, "Monthly PDF report", "Statistics → Monthly → PDF report") {
+                    SettingRow(Icons.Rounded.PictureAsPdf, S.monthlyPdf, S.monthlyPdfSub) {
                         nav.navigate(com.moneytracker.app.ui.Routes.stats(1))
                     }
                 }
@@ -180,9 +207,9 @@ fun SettingsScreen(nav: NavController, vm: SettingsViewModel = viewModel(factory
             if (archived.isNotEmpty()) {
                 item {
                     AppCard {
-                        Text("Deleted categories", style = MaterialTheme.typography.titleMedium)
+                        Text(S.deletedCategories, style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "Kept so your history and monthly reports stay accurate.",
+                            S.deletedCategoriesSub,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -192,7 +219,7 @@ fun SettingsScreen(nav: NavController, vm: SettingsViewModel = viewModel(factory
                                 CategoryBadge(c, size = 32.dp)
                                 Spacer(Modifier.width(10.dp))
                                 Text(c.name, modifier = Modifier.weight(1f))
-                                TextButton(onClick = { vm.restoreCategory(c.id) }) { Text("Restore") }
+                                TextButton(onClick = { vm.restoreCategory(c.id) }) { Text(S.restore) }
                             }
                         }
                     }
@@ -202,8 +229,8 @@ fun SettingsScreen(nav: NavController, vm: SettingsViewModel = viewModel(factory
                 AppCard(contentPadding = PaddingValues(vertical = 6.dp)) {
                     SettingRow(
                         Icons.Rounded.DeleteForever,
-                        "Reset all data",
-                        "Delete every transaction and category",
+                        S.resetAllData,
+                        S.resetSub,
                         Modifier.testTag("resetData"),
                         tint = MaterialTheme.colorScheme.error,
                     ) { resetDialog = true }
@@ -211,7 +238,7 @@ fun SettingsScreen(nav: NavController, vm: SettingsViewModel = viewModel(factory
             }
             item {
                 Text(
-                    "Money Tracker ${BuildConfig.VERSION_NAME} · offline, no permissions, no ads",
+                    S.aboutLine(BuildConfig.VERSION_NAME),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth().padding(8.dp),
@@ -228,10 +255,9 @@ fun SettingsScreen(nav: NavController, vm: SettingsViewModel = viewModel(factory
     }
     restoreUri?.let { uri ->
         ConfirmDialog(
-            title = "Restore this backup?",
-            message = "All current transactions and categories will be replaced by the backup's contents. " +
-                "The file is checked first — if it's invalid nothing changes.",
-            confirmLabel = "Restore",
+            title = S.restoreTitle,
+            message = S.restoreMessage,
+            confirmLabel = S.restore,
             onConfirm = {
                 restoreUri = null
                 vm.restore(uri)
@@ -279,13 +305,13 @@ private fun CurrencyDialog(current: AppSettings, onDismiss: () -> Unit, onSave: 
     var decimals by remember { mutableIntStateOf(current.decimals) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Currency") },
+        title = { Text(S.currency) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = code,
                     onValueChange = { if (it.length <= 6) code = it },
-                    label = { Text("Code or symbol (e.g. OMR, USD, €)") },
+                    label = { Text(S.currencyCodeHint) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
                     modifier = Modifier.testTag("currencyCode"),
@@ -295,7 +321,7 @@ private fun CurrencyDialog(current: AppSettings, onDismiss: () -> Unit, onSave: 
                         SuggestionChip(onClick = { code = c; decimals = d }, label = { Text(c) })
                     }
                 }
-                Text("Decimal places", style = MaterialTheme.typography.labelLarge)
+                Text(S.decimalPlaces, style = MaterialTheme.typography.labelLarge)
                 SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                     listOf(0, 2, 3).forEachIndexed { i, d ->
                         SegmentedButton(
@@ -307,14 +333,14 @@ private fun CurrencyDialog(current: AppSettings, onDismiss: () -> Unit, onSave: 
                     }
                 }
                 Text(
-                    "Amounts are stored exactly to 1/1000 of a unit, so changing this only changes how they are shown and entered.",
+                    S.decimalsHint,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         },
-        confirmButton = { TextButton(onClick = { onSave(code, decimals) }, modifier = Modifier.testTag("currencySave")) { Text("Save") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        confirmButton = { TextButton(onClick = { onSave(code, decimals) }, modifier = Modifier.testTag("currencySave")) { Text(S.save) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(S.cancel) } },
     )
 }
 
@@ -324,10 +350,10 @@ private fun ResetDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Rounded.Warning, null, tint = MaterialTheme.colorScheme.error) },
-        title = { Text("Delete all data?") },
+        title = { Text(S.deleteAllTitle) },
         text = {
             Column {
-                Text("This permanently deletes every transaction and category. Make a backup first if you might need them. Type RESET to confirm.")
+                Text(S.deleteAllMessage)
                 Spacer(Modifier.height(10.dp))
                 OutlinedTextField(
                     value = text,
@@ -339,9 +365,9 @@ private fun ResetDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
         },
         confirmButton = {
             TextButton(onClick = onConfirm, enabled = text.trim() == "RESET", modifier = Modifier.testTag("resetConfirm")) {
-                Text("Delete everything", color = if (text.trim() == "RESET") MaterialTheme.colorScheme.error else Color.Unspecified)
+                Text(S.deleteEverything, color = if (text.trim() == "RESET") MaterialTheme.colorScheme.error else Color.Unspecified)
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(S.cancel) } },
     )
 }

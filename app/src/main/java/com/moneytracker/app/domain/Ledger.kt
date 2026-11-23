@@ -1,6 +1,7 @@
 package com.moneytracker.app.domain
 
 import com.moneytracker.app.core.MoneyFormatter
+import com.moneytracker.app.i18n.S
 import com.moneytracker.app.core.TimeRange
 import com.moneytracker.app.data.db.Category
 import com.moneytracker.app.data.db.MoneyTransaction
@@ -130,13 +131,12 @@ object Validation {
     ): String? {
         val b = Ledger.balances(txs)
         if (b.available < 0) {
-            return "Not enough available money. This would leave Available at ${fmt.format(b.available)}. " +
-                "Add income first, or take the money from a category."
+            return S.notEnoughAvailable(fmt.format(b.available))
         }
         for (c in categories) {
             val bal = b.byCategory[c.id] ?: 0L
             if (bal < 0) {
-                return "Not enough money in “${c.name}”. This would leave it at ${fmt.format(bal)}."
+                return S.notEnoughIn(c.name, fmt.format(bal))
             }
         }
         return null

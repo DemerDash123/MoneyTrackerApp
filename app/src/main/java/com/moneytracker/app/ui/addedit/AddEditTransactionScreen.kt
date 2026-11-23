@@ -37,6 +37,7 @@ import com.moneytracker.app.data.db.TxType
 import com.moneytracker.app.domain.FinanceException
 import com.moneytracker.app.domain.Ledger
 import com.moneytracker.app.ui.AppViewModelProvider
+import com.moneytracker.app.i18n.S
 import com.moneytracker.app.ui.LocalMoney
 import com.moneytracker.app.ui.Routes
 import com.moneytracker.app.ui.components.*
@@ -84,7 +85,7 @@ class AddEditViewModel(handle: SavedStateHandle, private val container: AppConta
             if (editId != null) {
                 val t = finance.getTransaction(editId)
                 if (t == null) {
-                    state = state.copy(loaded = true, error = "This transaction no longer exists.")
+                    state = state.copy(loaded = true, error = S.txNotExists)
                     return@launch
                 }
                 val dt = Dates.localDateTime(t.timestamp)
@@ -169,10 +170,10 @@ class AddEditViewModel(handle: SavedStateHandle, private val container: AppConta
         val amount = when (val p = fmt.parse(state.amountText)) {
             is AmountParse.Ok -> p.milli
             is AmountParse.Error -> { state = state.copy(error = p.message); return }
-            AmountParse.Empty -> { state = state.copy(error = "Enter an amount"); return }
+            AmountParse.Empty -> { state = state.copy(error = S.enterAmount); return }
         }
         if (state.type == TxType.TRANSFER && state.sourceId == state.destId) {
-            state = state.copy(error = "Choose two different places to move money between.")
+            state = state.copy(error = S.chooseTwoPlaces)
             return
         }
         val draft = buildDraft(amount)
@@ -216,16 +217,16 @@ fun AddEditTransactionScreen(nav: NavController, vm: AddEditViewModel = viewMode
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (state.editing != null) "Edit transaction" else "New transaction") },
+                title = { Text(if (state.editing != null) S.editTransaction else S.newTransaction) },
                 navigationIcon = {
                     IconButton(onClick = { nav.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = S.back)
                     }
                 },
                 actions = {
                     if (state.editing != null) {
                         IconButton(onClick = { confirmDelete = true }, modifier = Modifier.testTag("deleteTx")) {
-                            Icon(Icons.Rounded.Delete, contentDescription = "Delete transaction")
+                            Icon(Icons.Rounded.Delete, contentDescription = S.deleteTransaction)
                         }
                     }
                 },
@@ -250,7 +251,7 @@ fun AddEditTransactionScreen(nav: NavController, vm: AddEditViewModel = viewMode
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                val types = listOf(TxType.INCOME to "Income", TxType.EXPENSE to "Expense", TxType.TRANSFER to "Transfer")
+                val types = listOf(TxType.INCOME to S.income, TxType.EXPENSE to S.expense, TxType.TRANSFER to S.transfer)
                 types.forEachIndexed { i, (t, label) ->
                     SegmentedButton(
                         selected = state.type == t,
@@ -270,7 +271,7 @@ fun AddEditTransactionScreen(nav: NavController, vm: AddEditViewModel = viewMode
                 value = state.amountText,
                 onValueChange = vm::setAmount,
                 modifier = Modifier.fillMaxWidth().focusRequester(focus).testTag("amountField"),
-                label = { Text("Amount") },
+                label = { Text(S.amount) },
                 textStyle = AmountStyle.copy(fontSize = 30.sp, color = typeColor(state.type)),
                 suffix = { Text(money.currency, style = MaterialTheme.typography.titleMedium) },
                 singleLine = true,
@@ -284,25 +285,25 @@ fun AddEditTransactionScreen(nav: NavController, vm: AddEditViewModel = viewMode
 
             when (state.type) {
                 TxType.INCOME -> {
-                    PlaceSelector("Add to", s, state.destId, state.editing, vm::setDest, "dest")
+                    PlaceSelector(S.addTo, s, state.destId, state.editing, vm::setDest, "dest")
                     PreviewLine(vm, s, state.destId)
-                    QuickDescriptions(listOf("Salary", "Freelancing", "Gift", "Sold item", "Received money", "Other income")) {
+                    QuickDescriptions(S.incomeSuggestions) {
                         vm.setDescription(it)
                     }
                 }
                 TxType.EXPENSE -> {
-                    PlaceSelector("Pay from", s, state.sourceId, state.editing, vm::setSource, "source")
+                    PlaceSelector(S.payFrom, s, state.sourceId, state.editing, vm::setSource, "source")
                     PreviewLine(vm, s, state.sourceId)
                 }
                 TxType.TRANSFER -> {
-                    PlaceSelector("From", s, state.sourceId, state.editing, vm::setSource, "source")
+                    PlaceSelector(S.from, s, state.sourceId, state.editing, vm::setSource, "source")
                     PreviewLine(vm, s, state.sourceId)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                         FilledTonalIconButton(onClick = vm::swap) {
-                            Icon(Icons.Rounded.SwapVert, contentDescription = "Swap from and to")
+                            Icon(Icons.Rounded.SwapVert, contentDescription = S.swapFromTo)
                         }
                     }
-                    PlaceSelector("To", s, state.destId, state.editing, vm::setDest, "dest")
+                    PlaceSelector(S.to, s, state.destId, state.editing, vm::setDest, "dest")
                     PreviewLine(vm, s, state.destId)
                 }
             }
@@ -325,7 +326,7 @@ fun AddEditTransactionScreen(nav: NavController, vm: AddEditViewModel = viewMode
                 value = state.description,
                 onValueChange = vm::setDescription,
                 modifier = Modifier.fillMaxWidth().testTag("descriptionField"),
-                label = { Text(if (state.type == TxType.INCOME) "Source / description" else "Description") },
+                label = { Text(if (state.type == TxType.INCOME) S.sourceDescription else S.description) },
                 singleLine = true,
                 shape = RoundedCornerShape(16.dp),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
@@ -334,7 +335,7 @@ fun AddEditTransactionScreen(nav: NavController, vm: AddEditViewModel = viewMode
                 value = state.note,
                 onValueChange = vm::setNote,
                 modifier = Modifier.fillMaxWidth().testTag("noteField"),
-                label = { Text("Notes (optional)") },
+                label = { Text(S.notesOptional) },
                 minLines = 2,
                 maxLines = 5,
                 shape = RoundedCornerShape(16.dp),
@@ -362,7 +363,7 @@ fun AddEditTransactionScreen(nav: NavController, vm: AddEditViewModel = viewMode
             ) {
                 Icon(Icons.Rounded.Check, null)
                 Spacer(Modifier.width(8.dp))
-                Text(if (state.editing != null) "Save changes" else "Save", fontWeight = FontWeight.SemiBold)
+                Text(if (state.editing != null) S.saveChanges else S.save, fontWeight = FontWeight.SemiBold)
             }
             Spacer(Modifier.height(24.dp))
         }
@@ -385,9 +386,9 @@ fun AddEditTransactionScreen(nav: NavController, vm: AddEditViewModel = viewMode
                         vm.setDate(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate())
                     }
                     showDate = false
-                }) { Text("OK") }
+                }) { Text(S.ok) }
             },
-            dismissButton = { TextButton(onClick = { showDate = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { showDate = false }) { Text(S.cancel) } },
         ) { DatePicker(pickerState) }
     }
 
@@ -399,18 +400,18 @@ fun AddEditTransactionScreen(nav: NavController, vm: AddEditViewModel = viewMode
                 TextButton(onClick = {
                     vm.setTime(LocalTime.of(timeState.hour, timeState.minute))
                     showTime = false
-                }) { Text("OK") }
+                }) { Text(S.ok) }
             },
-            dismissButton = { TextButton(onClick = { showTime = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { showTime = false }) { Text(S.cancel) } },
             text = { TimeInput(timeState) },
         )
     }
 
     if (confirmDelete) {
         ConfirmDialog(
-            title = "Delete transaction?",
-            message = "Its effect on your balances will be reversed. This can't be undone.",
-            confirmLabel = "Delete",
+            title = S.deleteTxTitle,
+            message = S.deleteTxMessage,
+            confirmLabel = S.delete,
             onConfirm = {
                 confirmDelete = false
                 vm.delete { nav.popBackStack() }
@@ -441,7 +442,7 @@ private fun PlaceSelector(
             FilterChip(
                 selected = selected == null,
                 onClick = { onSelect(null) },
-                label = { Text("Available · ${money.format(balances.available)}") },
+                label = { Text("${S.available} · ${money.format(balances.available)}") },
                 leadingIcon = { Icon(Icons.Rounded.AccountBalanceWallet, null, Modifier.size(18.dp)) },
                 modifier = Modifier.testTag("${tagPrefix}_available"),
             )
@@ -459,7 +460,7 @@ private fun PlaceSelector(
         }
         if (cats.isEmpty()) {
             Text(
-                "Tip: create categories in My Money to organise your money.",
+                S.tipCreateCategories,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -482,8 +483,8 @@ private fun PreviewLine(vm: AddEditViewModel, snapshot: FinanceSnapshot, pool: L
     if (after == current) return
     val negative = after < 0
     Text(
-        "${placeName(snapshot, pool)}: ${money.format(current)} → ${money.format(after)}" +
-            if (negative) "  (not enough money)" else "",
+        "${placeName(snapshot, pool)}: ${money.format(current)} ${S.arrow} ${money.format(after)}" +
+            if (negative) S.notEnoughSuffix else "",
         style = MaterialTheme.typography.bodySmall,
         color = if (negative) FinanceTheme.colors.expense else MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.testTag("preview_${pool ?: -1}"),

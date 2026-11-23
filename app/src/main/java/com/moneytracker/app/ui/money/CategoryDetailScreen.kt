@@ -37,6 +37,7 @@ import com.moneytracker.app.domain.CategoryStats
 import com.moneytracker.app.domain.FinanceException
 import com.moneytracker.app.domain.Ledger
 import com.moneytracker.app.ui.AppViewModelProvider
+import com.moneytracker.app.i18n.S
 import com.moneytracker.app.ui.LocalMoney
 import com.moneytracker.app.ui.Routes
 import com.moneytracker.app.ui.components.*
@@ -81,10 +82,10 @@ class CategoryDetailViewModel(handle: SavedStateHandle, private val container: A
             try {
                 val money = container.settings.settings.value.formatter
                 val msg = when (val r = container.finance.deleteCategory(id)) {
-                    DeleteCategoryResult.Deleted -> "Category deleted"
+                    DeleteCategoryResult.Deleted -> S.categoryDeleted
                     is DeleteCategoryResult.Archived ->
-                        if (r.returnedToAvailable > 0) "Category deleted. ${money.format(r.returnedToAvailable)} returned to Available; history kept."
-                        else "Category deleted; its history is kept in reports."
+                        if (r.returnedToAvailable > 0) S.categoryDeletedReturned(money.format(r.returnedToAvailable))
+                        else S.categoryDeletedHistoryKept
                 }
                 onDone(msg)
             } catch (e: FinanceException) {
@@ -119,16 +120,16 @@ fun CategoryDetailScreen(nav: NavController, vm: CategoryDetailViewModel = viewM
                 title = { Text(c?.name ?: "") },
                 navigationIcon = {
                     IconButton(onClick = { nav.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = S.back)
                     }
                 },
                 actions = {
                     if (c != null && !c.archived) {
                         IconButton(onClick = { nav.navigate(Routes.categoryEdit(c.id)) }, modifier = Modifier.testTag("editCategory")) {
-                            Icon(Icons.Rounded.Edit, contentDescription = "Edit category")
+                            Icon(Icons.Rounded.Edit, contentDescription = S.editCategory)
                         }
                         IconButton(onClick = { confirmDelete = true }, modifier = Modifier.testTag("deleteCategory")) {
-                            Icon(Icons.Rounded.Delete, contentDescription = "Delete category")
+                            Icon(Icons.Rounded.Delete, contentDescription = S.deleteCategory)
                         }
                     }
                 },
@@ -137,7 +138,7 @@ fun CategoryDetailScreen(nav: NavController, vm: CategoryDetailViewModel = viewM
     ) { padding ->
         if (s == null || c == null) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                if (s == null) CircularProgressIndicator() else Text("This category no longer exists.")
+                if (s == null) CircularProgressIndicator() else Text(S.categoryNotExists)
             }
             return@Scaffold
         }
@@ -163,7 +164,7 @@ fun CategoryDetailScreen(nav: NavController, vm: CategoryDetailViewModel = viewM
                             ) { Icon(CategoryIcons.get(c.icon), null, tint = Color.White) }
                             Spacer(Modifier.width(12.dp))
                             Text(
-                                if (c.archived) "Deleted category" else "Current balance",
+                                if (c.archived) S.deletedCategory else S.currentBalance,
                                 color = Color.White.copy(alpha = 0.85f),
                                 style = MaterialTheme.typography.labelLarge,
                             )
@@ -177,19 +178,19 @@ fun CategoryDetailScreen(nav: NavController, vm: CategoryDetailViewModel = viewM
                         )
                         Spacer(Modifier.height(14.dp))
                         Row {
-                            StatBlock("Total added", money.format(s.lifetime.totalAdded), Modifier.weight(1f),
+                            StatBlock(S.totalAdded, money.format(s.lifetime.totalAdded), Modifier.weight(1f),
                                 valueColor = Color.White, labelColor = Color.White.copy(alpha = 0.8f),
                                 valueStyle = MaterialTheme.typography.bodyLarge)
-                            StatBlock("Total spent", money.format(s.lifetime.spent), Modifier.weight(1f),
+                            StatBlock(S.totalSpent, money.format(s.lifetime.spent), Modifier.weight(1f),
                                 valueColor = Color.White, labelColor = Color.White.copy(alpha = 0.8f),
                                 valueStyle = MaterialTheme.typography.bodyLarge)
                         }
                         Spacer(Modifier.height(8.dp))
                         Row {
-                            StatBlock("Moved out", money.format(s.lifetime.transfersOut), Modifier.weight(1f),
+                            StatBlock(S.movedOut, money.format(s.lifetime.transfersOut), Modifier.weight(1f),
                                 valueColor = Color.White, labelColor = Color.White.copy(alpha = 0.8f),
                                 valueStyle = MaterialTheme.typography.bodyLarge)
-                            StatBlock("Remaining", money.format(s.balance), Modifier.weight(1f),
+                            StatBlock(S.remaining, money.format(s.balance), Modifier.weight(1f),
                                 valueColor = Color.White, labelColor = Color.White.copy(alpha = 0.8f),
                                 valueStyle = MaterialTheme.typography.bodyLarge)
                         }
@@ -199,16 +200,16 @@ fun CategoryDetailScreen(nav: NavController, vm: CategoryDetailViewModel = viewM
             if (!c.archived) {
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        ActionTile("Add money", Icons.Rounded.AddCircle, fc.income, Modifier.weight(1f).testTag("catAdd")) {
+                        ActionTile(S.addMoney, Icons.Rounded.AddCircle, fc.income, Modifier.weight(1f).testTag("catAdd")) {
                             nav.navigate(Routes.add(TxType.TRANSFER, from = Routes.AVAILABLE, to = c.id))
                         }
-                        ActionTile("Spend", Icons.Rounded.ShoppingCart, fc.expense, Modifier.weight(1f).testTag("catSpend")) {
+                        ActionTile(S.spend, Icons.Rounded.ShoppingCart, fc.expense, Modifier.weight(1f).testTag("catSpend")) {
                             nav.navigate(Routes.add(TxType.EXPENSE, from = c.id))
                         }
-                        ActionTile("Remove", Icons.Rounded.RemoveCircle, fc.available, Modifier.weight(1f).testTag("catRemove")) {
+                        ActionTile(S.remove, Icons.Rounded.RemoveCircle, fc.available, Modifier.weight(1f).testTag("catRemove")) {
                             nav.navigate(Routes.add(TxType.TRANSFER, from = c.id, to = Routes.AVAILABLE))
                         }
-                        ActionTile("Transfer", Icons.Rounded.SwapHoriz, fc.transfer, Modifier.weight(1f).testTag("catTransfer")) {
+                        ActionTile(S.transfer, Icons.Rounded.SwapHoriz, fc.transfer, Modifier.weight(1f).testTag("catTransfer")) {
                             nav.navigate(Routes.add(TxType.TRANSFER, from = c.id))
                         }
                     }
@@ -216,12 +217,12 @@ fun CategoryDetailScreen(nav: NavController, vm: CategoryDetailViewModel = viewM
             }
             item {
                 AppCard {
-                    Text("This month", style = MaterialTheme.typography.titleMedium)
+                    Text(S.thisMonth, style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(10.dp))
                     Row {
-                        StatBlock("Added", money.format(s.month.totalAdded), Modifier.weight(1f), valueColor = fc.income)
-                        StatBlock("Spent", money.format(s.month.spent), Modifier.weight(1f), valueColor = fc.expense)
-                        StatBlock("Moved out", money.format(s.month.transfersOut), Modifier.weight(1f))
+                        StatBlock(S.added, money.format(s.month.totalAdded), Modifier.weight(1f), valueColor = fc.income)
+                        StatBlock(S.spent, money.format(s.month.spent), Modifier.weight(1f), valueColor = fc.expense)
+                        StatBlock(S.movedOut, money.format(s.month.transfersOut), Modifier.weight(1f))
                     }
                     c.monthlyLimit?.let { limit ->
                         Spacer(Modifier.height(12.dp))
@@ -229,8 +230,8 @@ fun CategoryDetailScreen(nav: NavController, vm: CategoryDetailViewModel = viewM
                         ProgressBar(ratio, if (ratio > 1f) fc.expense else if (ratio >= 0.8f) fc.warning else color)
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            if (s.month.spent > limit) "Over budget by ${money.format(s.month.spent - limit)}"
-                            else "${money.format(limit - s.month.spent)} left of ${money.format(limit)} budget",
+                            if (s.month.spent > limit) S.overBudgetBy(money.format(s.month.spent - limit))
+                            else S.leftOfBudget(money.format(limit - s.month.spent), money.format(limit)),
                             style = MaterialTheme.typography.bodySmall,
                             color = if (s.month.spent > limit) fc.expense else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -240,19 +241,19 @@ fun CategoryDetailScreen(nav: NavController, vm: CategoryDetailViewModel = viewM
                         ProgressBar(s.balance.toFloat() / target, color)
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            "Goal: ${money.format(s.balance)} of ${money.format(target)}" +
-                                (c.targetDate?.let { " by ${java.time.LocalDate.ofEpochDay(it).format(Dates.mediumDate)}" } ?: ""),
+                            S.goalProgress(money.format(s.balance), money.format(target)) +
+                                (c.targetDate?.let { S.byDate(java.time.LocalDate.ofEpochDay(it).format(Dates.mediumDate)) } ?: ""),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
             }
-            item { SectionHeader("History (${s.history.size})") }
+            item { SectionHeader(S.history(s.history.size)) }
             if (s.history.isEmpty()) {
                 item {
                     Text(
-                        "No activity yet. Use Add money to allocate from Available.",
+                        S.noActivityYet,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -269,11 +270,11 @@ fun CategoryDetailScreen(nav: NavController, vm: CategoryDetailViewModel = viewM
     if (confirmDelete && c != null) {
         val hasBalance = (s?.balance ?: 0L) > 0
         ConfirmDialog(
-            title = "Delete “${c.name}”?",
-            message = if ((s?.history?.size ?: 0) == 0) "This category has no transactions and will be removed."
-            else "Its past transactions stay in your history and reports." +
-                if (hasBalance) " The remaining ${money.format(s!!.balance)} will be returned to Available." else "",
-            confirmLabel = "Delete",
+            title = S.deleteCategoryTitle(c.name),
+            message = if ((s?.history?.size ?: 0) == 0) S.categoryNoTxRemoved
+            else S.pastTxStay +
+                if (hasBalance) S.remainingReturned(money.format(s!!.balance)) else "",
+            confirmLabel = S.delete,
             onConfirm = {
                 confirmDelete = false
                 vm.delete { msg ->

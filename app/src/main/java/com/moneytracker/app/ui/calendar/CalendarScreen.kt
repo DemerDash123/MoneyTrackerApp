@@ -34,6 +34,8 @@ import com.moneytracker.app.domain.DayActivity
 import com.moneytracker.app.domain.PeriodSummary
 import com.moneytracker.app.domain.Reports
 import com.moneytracker.app.ui.AppViewModelProvider
+import com.moneytracker.app.i18n.S
+import com.moneytracker.app.i18n.I18n
 import com.moneytracker.app.ui.LocalMoney
 import com.moneytracker.app.ui.Routes
 import com.moneytracker.app.ui.components.*
@@ -95,14 +97,14 @@ fun CalendarScreen(nav: NavController, vm: CalendarViewModel = viewModel(factory
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Calendar") },
+                title = { Text(S.calendar) },
                 navigationIcon = {
                     IconButton(onClick = { nav.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = S.back)
                     }
                 },
                 actions = {
-                    TextButton(onClick = { vm.setMonth(YearMonth.now()) }) { Text("Today") }
+                    TextButton(onClick = { vm.setMonth(YearMonth.now()) }) { Text(S.today) }
                 },
             )
         },
@@ -119,20 +121,20 @@ fun CalendarScreen(nav: NavController, vm: CalendarViewModel = viewModel(factory
             item {
                 MonthSwitcher(s.month, vm::setMonth, onTitleClick = { picker = true })
                 Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)) {
-                    StatBlock("Income", money.format(s.monthSummary.income), Modifier.weight(1f), valueColor = fc.income,
+                    StatBlock(S.income, money.format(s.monthSummary.income), Modifier.weight(1f), valueColor = fc.income,
                         valueStyle = MaterialTheme.typography.bodyLarge)
-                    StatBlock("Expenses", money.format(s.monthSummary.expense), Modifier.weight(1f), valueColor = fc.expense,
+                    StatBlock(S.expenses, money.format(s.monthSummary.expense), Modifier.weight(1f), valueColor = fc.expense,
                         valueStyle = MaterialTheme.typography.bodyLarge)
-                    StatBlock("Net", money.format(s.monthSummary.net), Modifier.weight(1f),
+                    StatBlock(S.net, money.format(s.monthSummary.net), Modifier.weight(1f),
                         valueStyle = MaterialTheme.typography.bodyLarge)
                 }
                 Spacer(Modifier.height(8.dp))
                 MonthGrid(s, onSelect = vm::select)
                 Spacer(Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.padding(horizontal = 8.dp)) {
-                    LegendDot(fc.income, "Money in")
-                    LegendDot(fc.expense, "Money out")
-                    LegendDot(fc.transfer, "Transfer")
+                    LegendDot(fc.income, S.moneyInLegend)
+                    LegendDot(fc.expense, S.moneyOutLegend)
+                    LegendDot(fc.transfer, S.transfer)
                 }
             }
             item {
@@ -142,16 +144,16 @@ fun CalendarScreen(nav: NavController, vm: CalendarViewModel = viewModel(factory
                         modifier = Modifier.testTag("selectedDay"))
                     Spacer(Modifier.height(8.dp))
                     Row {
-                        StatBlock("Received", money.format(act?.income ?: 0), Modifier.weight(1f), valueColor = fc.income)
-                        StatBlock("Spent", money.format(act?.expense ?: 0), Modifier.weight(1f), valueColor = fc.expense)
-                        StatBlock("Transactions", (act?.count ?: 0).toString(), Modifier.weight(1f))
+                        StatBlock(S.received, money.format(act?.income ?: 0), Modifier.weight(1f), valueColor = fc.income)
+                        StatBlock(S.spent, money.format(act?.expense ?: 0), Modifier.weight(1f), valueColor = fc.expense)
+                        StatBlock(S.transactions, (act?.count ?: 0).toString(), Modifier.weight(1f))
                     }
                 }
             }
             if (s.dayTransactions.isEmpty()) {
                 item {
                     Text(
-                        "No transactions on this day.",
+                        S.noTxOnDay,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp),
@@ -187,7 +189,7 @@ private fun MonthGrid(s: CalendarState, onSelect: (LocalDate) -> Unit) {
         Row(Modifier.fillMaxWidth()) {
             headers.forEach {
                 Text(
-                    it.getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
+                    it.getDisplayName(if (I18n.isRtl) TextStyle.SHORT_STANDALONE else TextStyle.SHORT, I18n.locale),
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.labelSmall,

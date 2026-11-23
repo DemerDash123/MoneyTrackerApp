@@ -33,6 +33,7 @@ import com.moneytracker.app.core.Dates
 import com.moneytracker.app.data.CategoryInput
 import com.moneytracker.app.domain.FinanceException
 import com.moneytracker.app.ui.AppViewModelProvider
+import com.moneytracker.app.i18n.S
 import com.moneytracker.app.ui.LocalMoney
 import com.moneytracker.app.ui.components.CategoryIcons
 import kotlinx.coroutines.flow.SharingStarted
@@ -79,7 +80,7 @@ class CategoryEditViewModel(handle: SavedStateHandle, private val container: App
                 )
             } else {
                 val c = container.finance.getCategory(id)
-                form = if (c == null) CategoryForm(loaded = true, error = "This category no longer exists.")
+                form = if (c == null) CategoryForm(loaded = true, error = S.categoryNotExists)
                 else CategoryForm(
                     loaded = true,
                     name = c.name,
@@ -105,10 +106,10 @@ class CategoryEditViewModel(handle: SavedStateHandle, private val container: App
             is AmountParse.Error -> Result.failure(FinanceException("$label: ${p.message}"))
         }
         try {
-            val limit = optional(form.limitText, "Monthly limit").getOrThrow()
-            val target = optional(form.targetText, "Target").getOrThrow()
-            val initial = optional(form.initialText, "Starting amount").getOrThrow() ?: 0L
-            if (goalMode && target == null) throw FinanceException("Enter a target amount for the goal.")
+            val limit = optional(form.limitText, S.monthlyLimit).getOrThrow()
+            val target = optional(form.targetText, S.target).getOrThrow()
+            val initial = optional(form.initialText, S.startingAmount).getOrThrow() ?: 0L
+            if (goalMode && target == null) throw FinanceException(S.enterTargetForGoal)
             val input = CategoryInput(form.name, form.icon, form.color, limit, target, if (target != null) form.targetDate else null)
             form = form.copy(saving = true, error = null)
             viewModelScope.launch {
@@ -134,9 +135,9 @@ fun CategoryEditScreen(nav: NavController, vm: CategoryEditViewModel = viewModel
     val available by vm.available.collectAsStateWithLifecycle()
     var showDate by remember { mutableStateOf(false) }
     val title = when {
-        vm.editId != null -> "Edit category"
-        vm.goalMode -> "New goal"
-        else -> "New category"
+        vm.editId != null -> S.editCategory
+        vm.goalMode -> S.newGoal
+        else -> S.newCategory
     }
 
     Scaffold(
@@ -145,7 +146,7 @@ fun CategoryEditScreen(nav: NavController, vm: CategoryEditViewModel = viewModel
                 title = { Text(title) },
                 navigationIcon = {
                     IconButton(onClick = { nav.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = S.back)
                     }
                 },
             )
@@ -173,14 +174,14 @@ fun CategoryEditScreen(nav: NavController, vm: CategoryEditViewModel = viewModel
                 OutlinedTextField(
                     value = f.name,
                     onValueChange = { v -> if (v.length <= 40) vm.update { it.copy(name = v) } },
-                    label = { Text(if (vm.goalMode) "Goal name (e.g. New phone)" else "Name") },
+                    label = { Text(if (vm.goalMode) S.goalNameHint else S.name) },
                     singleLine = true,
                     modifier = Modifier.weight(1f).testTag("categoryName"),
                     shape = RoundedCornerShape(16.dp),
                 )
             }
 
-            Text("Icon", style = MaterialTheme.typography.labelLarge)
+            Text(S.icon, style = MaterialTheme.typography.labelLarge)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 CategoryIcons.all.forEach { (key, icon) ->
                     val sel = f.icon == key
@@ -198,7 +199,7 @@ fun CategoryEditScreen(nav: NavController, vm: CategoryEditViewModel = viewModel
                 }
             }
 
-            Text("Color", style = MaterialTheme.typography.labelLarge)
+            Text(S.color, style = MaterialTheme.typography.labelLarge)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 CategoryIcons.colors.forEach { col ->
                     val sel = f.color == col
@@ -219,18 +220,18 @@ fun CategoryEditScreen(nav: NavController, vm: CategoryEditViewModel = viewModel
             AmountInput(
                 value = f.targetText,
                 onChange = { v -> vm.update { it.copy(targetText = v) } },
-                label = if (vm.goalMode) "Target amount" else "Savings target (optional)",
+                label = if (vm.goalMode) S.targetAmount else S.savingsTargetOptional,
                 tag = "targetField",
             )
             if (f.targetText.isNotBlank()) {
                 AssistChip(
                     onClick = { showDate = true },
-                    label = { Text(f.targetDate?.let { "Target date: ${it.format(Dates.mediumDate)}" } ?: "Add a target date (optional)") },
+                    label = { Text(f.targetDate?.let { S.targetDateColon(it.format(Dates.mediumDate)) } ?: S.addTargetDate) },
                     leadingIcon = { Icon(Icons.Rounded.Event, null, Modifier.size(18.dp)) },
                     trailingIcon = {
                         if (f.targetDate != null) {
                             Icon(
-                                Icons.Rounded.Close, "Clear date",
+                                Icons.Rounded.Close, S.clearDate,
                                 Modifier.size(18.dp).clickable { vm.update { it.copy(targetDate = null) } },
                             )
                         }
@@ -240,16 +241,16 @@ fun CategoryEditScreen(nav: NavController, vm: CategoryEditViewModel = viewModel
             AmountInput(
                 value = f.limitText,
                 onChange = { v -> vm.update { it.copy(limitText = v) } },
-                label = "Monthly spending limit (optional)",
+                label = S.monthlyLimitOptional,
                 tag = "limitField",
             )
             if (vm.editId == null) {
                 AmountInput(
                     value = f.initialText,
                     onChange = { v -> vm.update { it.copy(initialText = v) } },
-                    label = "Allocate now from Available (optional)",
+                    label = S.allocateNowOptional,
                     tag = "initialField",
-                    supporting = "Available: ${money.format(available)}",
+                    supporting = S.availableColon(money.format(available)),
                 )
             }
 
@@ -264,7 +265,7 @@ fun CategoryEditScreen(nav: NavController, vm: CategoryEditViewModel = viewModel
                 enabled = !f.saving,
                 modifier = Modifier.fillMaxWidth().height(54.dp).testTag("saveCategory"),
                 shape = RoundedCornerShape(18.dp),
-            ) { Text(if (vm.editId != null) "Save changes" else "Create") }
+            ) { Text(if (vm.editId != null) S.saveChanges else S.create) }
             Spacer(Modifier.height(24.dp))
         }
     }
@@ -282,9 +283,9 @@ fun CategoryEditScreen(nav: NavController, vm: CategoryEditViewModel = viewModel
                         vm.update { it.copy(targetDate = Instant.ofEpochMilli(ms).atZone(ZoneOffset.UTC).toLocalDate()) }
                     }
                     showDate = false
-                }) { Text("OK") }
+                }) { Text(S.ok) }
             },
-            dismissButton = { TextButton(onClick = { showDate = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { showDate = false }) { Text(S.cancel) } },
         ) { DatePicker(state) }
     }
 }

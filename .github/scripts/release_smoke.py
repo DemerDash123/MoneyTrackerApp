@@ -67,6 +67,13 @@ def crashed():
 adb("shell", "am", "start", "-W", "-n", f"{PKG}/.MainActivity")
 time.sleep(5)
 root = dump()
+picker = find(root, "English")
+check("first launch shows the language picker (English / Arabic)", picker is not None and find(root, "العربية") is not None)
+shot("00_language_picker")
+if picker is not None:
+    tap(picker)
+    time.sleep(2)
+    root = dump()
 check("release app launches and shows the dashboard", find(root, "Total balance", contains=True) is not None)
 shot("01_launch")
 
@@ -109,6 +116,49 @@ adb("shell", "am", "start", "-W", "-n", f"{PKG}/.MainActivity")
 time.sleep(5)
 root = dump()
 check("data still there after force-stop + relaunch", find(root, "250.000 OMR", contains=True) is not None)
+check("language picker not shown again", find(root, "العربية") is None)
+
+# Switch to Arabic from Settings and check the interface really changed.
+root = dump()
+n = find(root, "Settings")
+if n is not None:
+    tap(n)
+    root = dump()
+    ar = find(root, "العربية")
+    check("Arabic option present in Settings", ar is not None)
+    if ar is not None:
+        tap(ar)
+        time.sleep(3)
+        root = dump()
+        check("interface switched to Arabic (الإعدادات / الرئيسية)",
+              find(root, "الإعدادات") is not None and find(root, "الرئيسية") is not None)
+        shot("arabic_settings")
+        home = find(root, "الرئيسية")
+        if home is not None:
+            tap(home)
+            root = dump()
+            check("Arabic dashboard shows the balance", find(root, "250.000 OMR", contains=True) is not None
+                  and find(root, "الرصيد الإجمالي", contains=True) is not None)
+            shot("arabic_home")
+        adb("shell", "am", "force-stop", PKG)
+        adb("shell", "am", "start", "-W", "-n", f"{PKG}/.MainActivity")
+        time.sleep(5)
+        root = dump()
+        check("Arabic is remembered after restart", find(root, "الرئيسية") is not None)
+        en = None
+        n = find(root, "الإعدادات")
+        if n is not None:
+            tap(n)
+            root = dump()
+            en = find(root, "English")
+        if en is not None:
+            tap(en)
+            time.sleep(3)
+            root = dump()
+        check("switched back to English", find(root, "Settings") is not None and find(root, "Home") is not None)
+else:
+    check("Settings tab found for language switch", False)
+check("still alive after language switches", alive())
 check("no crash recorded in logcat", not crashed())
 
 failed = [n for n, ok in results if not ok]

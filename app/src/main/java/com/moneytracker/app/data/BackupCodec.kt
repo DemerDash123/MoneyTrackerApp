@@ -7,6 +7,7 @@ import com.moneytracker.app.data.db.Category
 import com.moneytracker.app.data.db.MoneyTransaction
 import com.moneytracker.app.data.db.TxType
 import com.moneytracker.app.domain.FinanceException
+import com.moneytracker.app.i18n.S
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -75,10 +76,10 @@ object BackupCodec {
     fun decode(json: String): BackupData {
         try {
             val root = JSONObject(json)
-            if (root.optString("app") != APP_ID) throw FinanceException("This file is not a Money Tracker backup.")
+            if (root.optString("app") != APP_ID) throw FinanceException(S.notBackupFile)
             val version = root.optInt("formatVersion", -1)
             if (version < 1 || version > FORMAT_VERSION) {
-                throw FinanceException("Unsupported backup version ($version).")
+                throw FinanceException(S.unsupportedVersion(version))
             }
             val s = root.optJSONObject("settings") ?: JSONObject()
             val settings = AppSettings(
@@ -103,24 +104,24 @@ object BackupCodec {
                 )
             }
             val ids = categories.map { it.id }
-            if (ids.toSet().size != ids.size) throw FinanceException("The backup contains duplicate categories.")
-            if (ids.any { it <= 0 }) throw FinanceException("The backup contains invalid category ids.")
+            if (ids.toSet().size != ids.size) throw FinanceException(S.backupDuplicateCategories)
+            if (ids.any { it <= 0 }) throw FinanceException(S.backupInvalidCategoryIds)
             val idSet = ids.toSet()
 
             val txArr = root.getJSONArray("transactions")
             val transactions = (0 until txArr.length()).map { i ->
                 val o = txArr.getJSONObject(i)
                 val type = runCatching { TxType.valueOf(o.getString("type")) }.getOrNull()
-                    ?: throw FinanceException("Unknown transaction type in backup.")
+                    ?: throw FinanceException(S.backupUnknownType)
                 val amount = o.getLong("amount")
                 if (amount <= 0 || amount > MoneyMath.MAX_AMOUNT) {
-                    throw FinanceException("The backup contains an invalid amount.")
+                    throw FinanceException(S.backupInvalidAmount)
                 }
                 val cat = if (o.has("categoryId") && !o.isNull("categoryId")) o.getLong("categoryId") else null
                 val to = if (o.has("toCategoryId") && !o.isNull("toCategoryId")) o.getLong("toCategoryId") else null
-                if (cat != null && cat !in idSet) throw FinanceException("The backup references a missing category.")
-                if (to != null && to !in idSet) throw FinanceException("The backup references a missing category.")
-                if (type == TxType.TRANSFER && cat == to) throw FinanceException("The backup contains an invalid transfer.")
+                if (cat != null && cat !in idSet) throw FinanceException(S.backupMissingCategory)
+                if (to != null && to !in idSet) throw FinanceException(S.backupMissingCategory)
+                if (type == TxType.TRANSFER && cat == to) throw FinanceException(S.backupInvalidTransfer)
                 MoneyTransaction(
                     id = o.getLong("id"),
                     type = type,
@@ -136,11 +137,11 @@ object BackupCodec {
             }
             val txIds = transactions.map { it.id }
             if (txIds.toSet().size != txIds.size || txIds.any { it <= 0 }) {
-                throw FinanceException("The backup contains duplicate or invalid transactions.")
+                throw FinanceException(S.backupDuplicateTransactions)
             }
             return BackupData(settings, categories, transactions)
         } catch (e: JSONException) {
-            throw FinanceException("The backup file is damaged or incomplete.")
+            throw FinanceException(S.backupDamaged)
         }
     }
 
@@ -151,9 +152,9 @@ object BackupCodec {
         zone: ZoneId = Dates.zone(),
     ): String {
         val names = categories.associate { it.id to it.name }
-        fun place(id: Long?) = if (id == null) "Available" else names[id] ?: "Unknown"
+        fun place(id: Long?) = if (id == null) S.available else names[id] ?: S.unknown
         val sb = StringBuilder()
-        sb.append("Date,Time,Type,Amount,Signed Amount,Currency,Description,From / Category,To,Notes\r\n")
+        sb.append(S.csvHeader.joinToString(",") { escape(it) }).append("\r\n")
         for (t in transactions.sortedWith(compareBy<MoneyTransaction> { it.timestamp }.thenBy { it.id })) {
             val dt = Dates.localDateTime(t.timestamp, zone)
             val amount = fmt.number(t.amount).replace(",", "")
@@ -165,7 +166,7 @@ object BackupCodec {
             val row = listOf(
                 dt.toLocalDate().format(Dates.isoDate),
                 dt.toLocalTime().format(Dates.time),
-                t.type.name.lowercase().replaceFirstChar { it.uppercase() },
+                S.typeName(t.type),
                 amount,
                 signed,
                 fmt.currency,

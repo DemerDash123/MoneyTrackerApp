@@ -1,5 +1,6 @@
 package com.moneytracker.app.core
 
+import com.moneytracker.app.i18n.S
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -29,7 +30,11 @@ sealed interface AmountParse {
     data object Empty : AmountParse
 }
 
-class MoneyFormatter(val currency: String, val decimals: Int) {
+/**
+ * @param isolate wrap formatted amounts in Unicode LTR isolates so they read correctly
+ *                inside right-to-left (Arabic) text, e.g. the minus sign stays in front.
+ */
+class MoneyFormatter(val currency: String, val decimals: Int, val isolate: Boolean = false) {
 
     init {
         require(decimals in 0..3) { "decimals must be 0..3" }
@@ -47,11 +52,15 @@ class MoneyFormatter(val currency: String, val decimals: Int) {
 
     /** "1,234.500 OMR" (negative values keep their minus sign). */
     fun format(milli: Long): String =
-        if (currency.isBlank()) number(milli) else "${number(milli)} $currency"
+        ltr(if (currency.isBlank()) number(milli) else "${number(milli)} $currency")
 
     /** "+12.000 OMR" or "−12.000 OMR" using the sign given by [positive]. */
-    fun signed(milli: Long, positive: Boolean): String =
-        (if (positive) "+" else "−") + format(abs(milli))
+    fun signed(milli: Long, positive: Boolean): String {
+        val plain = (if (positive) "+" else "\u2212") + number(abs(milli)) + if (currency.isBlank()) "" else " $currency"
+        return ltr(plain)
+    }
+
+    private fun ltr(s: String) = if (isolate) "\u2066$s\u2069" else s
 
     /** Plain value used to pre-fill an amount input when editing: "12.5". */
     fun input(milli: Long): String {
@@ -86,22 +95,22 @@ class MoneyFormatter(val currency: String, val decimals: Int) {
             s.count { it == ',' } == 1 && s.substringAfter(',').length != 3 -> s.replace(',', '.')
             else -> s.replace(",", "")
         }
-        if (s.startsWith("-")) return AmountParse.Error("Amount must be greater than zero")
-        if (!NUMBER.matches(s)) return AmountParse.Error("Enter a valid amount")
+        if (s.startsWith("-")) return AmountParse.Error(S.amountGtZero)
+        if (!NUMBER.matches(s)) return AmountParse.Error(S.invalidAmount)
         return try {
             val bd = BigDecimal(s)
-            if (bd.signum() <= 0) return AmountParse.Error("Amount must be greater than zero")
+            if (bd.signum() <= 0) return AmountParse.Error(S.amountGtZero)
             if (bd.stripTrailingZeros().scale() > decimals) {
                 return AmountParse.Error(
-                    if (decimals == 0) "Use whole amounts only" else "Use at most $decimals decimal places"
+                    if (decimals == 0) S.wholeOnly else S.maxDecimals(decimals)
                 )
             }
             val milli = bd.movePointRight(MoneyMath.SCALE).setScale(0, RoundingMode.UNNECESSARY).longValueExact()
-            if (milli > MoneyMath.MAX_AMOUNT) AmountParse.Error("Amount is too large") else AmountParse.Ok(milli)
+            if (milli > MoneyMath.MAX_AMOUNT) AmountParse.Error(S.amountTooLarge) else AmountParse.Ok(milli)
         } catch (e: ArithmeticException) {
-            AmountParse.Error("Amount is too large")
+            AmountParse.Error(S.amountTooLarge)
         } catch (e: NumberFormatException) {
-            AmountParse.Error("Enter a valid amount")
+            AmountParse.Error(S.invalidAmount)
         }
     }
 

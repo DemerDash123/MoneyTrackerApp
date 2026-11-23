@@ -21,6 +21,7 @@ class MoneyTrackerApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        com.moneytracker.app.i18n.I18n.language = SettingsRepository.readLanguage(this)
         container = AppContainer(this)
     }
 }

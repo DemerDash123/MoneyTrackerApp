@@ -30,6 +30,9 @@ import com.moneytracker.app.data.db.Category
 import com.moneytracker.app.data.db.MoneyTransaction
 import com.moneytracker.app.data.db.TxType
 import com.moneytracker.app.ui.LocalMoney
+import com.moneytracker.app.i18n.S
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import com.moneytracker.app.ui.theme.FinanceTheme
 import java.time.YearMonth
 
@@ -101,9 +104,9 @@ fun CategoryBadge(category: Category?, modifier: Modifier = Modifier, size: Dp =
 }
 
 fun placeName(snapshot: FinanceSnapshot, id: Long?): String {
-    if (id == null) return "Available"
-    val c = snapshot.category(id) ?: return "Unknown"
-    return if (c.archived) "${c.name} (deleted)" else c.name
+    if (id == null) return S.available
+    val c = snapshot.category(id) ?: return S.unknown
+    return if (c.archived) S.deletedName(c.name) else c.name
 }
 
 fun categoryColor(snapshot: FinanceSnapshot, id: Long?, availableColor: Color): Color =
@@ -112,20 +115,20 @@ fun categoryColor(snapshot: FinanceSnapshot, id: Long?, availableColor: Color): 
 fun transactionTitle(t: MoneyTransaction, snapshot: FinanceSnapshot): String {
     if (t.description.isNotBlank()) return t.description
     return when (t.type) {
-        TxType.INCOME -> "Income"
-        TxType.EXPENSE -> if (t.categoryId != null) placeName(snapshot, t.categoryId) else "Expense"
+        TxType.INCOME -> S.typeName(TxType.INCOME)
+        TxType.EXPENSE -> if (t.categoryId != null) placeName(snapshot, t.categoryId) else S.typeName(TxType.EXPENSE)
         TxType.TRANSFER -> when {
-            t.categoryId == null -> "Allocated to ${placeName(snapshot, t.toCategoryId)}"
-            t.toCategoryId == null -> "Moved to Available"
-            else -> "Transfer"
+            t.categoryId == null -> S.allocatedTo(placeName(snapshot, t.toCategoryId))
+            t.toCategoryId == null -> S.movedToAvailable
+            else -> S.typeName(TxType.TRANSFER)
         }
     }
 }
 
 fun transactionSubtitle(t: MoneyTransaction, snapshot: FinanceSnapshot): String = when (t.type) {
-    TxType.INCOME -> "Income → ${placeName(snapshot, t.categoryId)}"
-    TxType.EXPENSE -> "Expense · ${placeName(snapshot, t.categoryId)}"
-    TxType.TRANSFER -> "${placeName(snapshot, t.categoryId)} → ${placeName(snapshot, t.toCategoryId)}"
+    TxType.INCOME -> S.incomeTo(placeName(snapshot, t.categoryId))
+    TxType.EXPENSE -> S.expenseFrom(placeName(snapshot, t.categoryId))
+    TxType.TRANSFER -> "${placeName(snapshot, t.categoryId)} ${S.arrow} ${placeName(snapshot, t.toCategoryId)}"
 }
 
 @Composable
@@ -279,7 +282,7 @@ fun MonthSwitcher(
 ) {
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         IconButton(onClick = { onChange(month.minusMonths(1)) }) {
-            Icon(Icons.Rounded.ChevronLeft, contentDescription = "Previous month")
+            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, contentDescription = S.previousMonth)
         }
         Text(
             month.format(Dates.monthYear),
@@ -292,7 +295,7 @@ fun MonthSwitcher(
                 .padding(vertical = 8.dp),
         )
         IconButton(onClick = { onChange(month.plusMonths(1)) }) {
-            Icon(Icons.Rounded.ChevronRight, contentDescription = "Next month")
+            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = S.nextMonth)
         }
     }
 }
@@ -304,12 +307,12 @@ fun MonthPickerDialog(initial: YearMonth, onDismiss: () -> Unit, onPick: (YearMo
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {},
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(S.cancel) } },
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { year-- }) { Icon(Icons.Rounded.ChevronLeft, "Previous year") }
+                IconButton(onClick = { year-- }) { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, S.previousYear) }
                 Text(year.toString(), modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-                IconButton(onClick = { year++ }) { Icon(Icons.Rounded.ChevronRight, "Next year") }
+                IconButton(onClick = { year++ }) { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, S.nextYear) }
             }
         },
         text = {
@@ -367,7 +370,7 @@ fun ConfirmDialog(
                 )
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(S.cancel) } },
     )
 }
 

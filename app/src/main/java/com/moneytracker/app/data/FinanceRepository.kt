@@ -12,6 +12,9 @@ import com.moneytracker.app.domain.Balances
 import com.moneytracker.app.domain.FinanceException
 import com.moneytracker.app.domain.Ledger
 import com.moneytracker.app.domain.Validation
+import com.moneytracker.app.i18n.EnStrings
+import com.moneytracker.app.i18n.ArStrings
+import com.moneytracker.app.i18n.S
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import java.time.LocalDate
@@ -103,7 +106,7 @@ class FinanceRepository(
     }
 
     suspend fun updateTransaction(id: Long, draft: TxDraft) = db.withTransaction {
-        val existing = txDao.get(id) ?: throw FinanceException("This transaction no longer exists.")
+        val existing = txDao.get(id) ?: throw FinanceException(S.txNotExists)
         val n = validateDraft(draft, existing)
         txDao.update(
             existing.copy(
@@ -121,33 +124,33 @@ class FinanceRepository(
     }
 
     suspend fun deleteTransaction(id: Long) = db.withTransaction {
-        if (txDao.delete(id) == 0) throw FinanceException("This transaction no longer exists.")
+        if (txDao.delete(id) == 0) throw FinanceException(S.txNotExists)
         ensureConsistent()
     }
 
     private suspend fun validateDraft(draft: TxDraft, existing: MoneyTransaction?): TxDraft {
-        if (draft.amount <= 0) throw FinanceException("Amount must be greater than zero.")
-        if (draft.amount > MoneyMath.MAX_AMOUNT) throw FinanceException("Amount is too large.")
+        if (draft.amount <= 0) throw FinanceException(S.amountGtZero)
+        if (draft.amount > MoneyMath.MAX_AMOUNT) throw FinanceException(S.amountTooLarge)
         val endOfToday = Dates.startOfDay(LocalDate.now().plusDays(1))
-        if (draft.timestamp >= endOfToday) throw FinanceException("The date can't be in the future.")
-        if (draft.description.length > 80) throw FinanceException("Description is too long (max 80 characters).")
-        if (draft.note.length > 500) throw FinanceException("Note is too long (max 500 characters).")
+        if (draft.timestamp >= endOfToday) throw FinanceException(S.futureDate)
+        if (draft.description.length > 80) throw FinanceException(S.descTooLong)
+        if (draft.note.length > 500) throw FinanceException(S.noteTooLong)
 
         val normalized = when (draft.type) {
             TxType.INCOME, TxType.EXPENSE -> draft.copy(toCategoryId = null)
             TxType.TRANSFER -> {
                 if (draft.categoryId == draft.toCategoryId) {
-                    throw FinanceException("Choose two different places to move money between.")
+                    throw FinanceException(S.chooseTwoPlaces)
                 }
                 draft
             }
         }.copy(description = draft.description.trim(), note = draft.note.trim())
 
         for (cid in listOfNotNull(normalized.categoryId, normalized.toCategoryId)) {
-            val c = categoryDao.get(cid) ?: throw FinanceException("That category no longer exists.")
+            val c = categoryDao.get(cid) ?: throw FinanceException(S.categoryNotExists)
             val alreadyLinked = existing != null && (existing.categoryId == cid || existing.toCategoryId == cid)
             if (c.archived && !alreadyLinked) {
-                throw FinanceException("“${c.name}” was deleted. Choose another category.")
+                throw FinanceException(S.categoryWasDeleted(c.name))
             }
         }
         return normalized
@@ -176,14 +179,14 @@ class FinanceRepository(
             )
         )
         if (initialAllocation > 0) {
-            if (initialAllocation > MoneyMath.MAX_AMOUNT) throw FinanceException("Amount is too large.")
+            if (initialAllocation > MoneyMath.MAX_AMOUNT) throw FinanceException(S.amountTooLarge)
             txDao.insert(
                 MoneyTransaction(
                     type = TxType.TRANSFER,
                     amount = initialAllocation,
                     categoryId = null,
                     toCategoryId = id,
-                    description = "Allocated to ${clean.name}",
+                    description = S.allocatedTo(clean.name),
                     timestamp = now,
                     createdAt = now,
                     updatedAt = now,
@@ -195,7 +198,7 @@ class FinanceRepository(
     }
 
     suspend fun updateCategory(id: Long, input: CategoryInput) = db.withTransaction {
-        val existing = categoryDao.get(id) ?: throw FinanceException("That category no longer exists.")
+        val existing = categoryDao.get(id) ?: throw FinanceException(S.categoryNotExists)
         val clean = validateCategory(input, excludeId = id)
         categoryDao.update(
             existing.copy(
@@ -211,19 +214,19 @@ class FinanceRepository(
 
     private suspend fun validateCategory(input: CategoryInput, excludeId: Long): CategoryInput {
         val name = input.name.trim().replace(Regex("\\s+"), " ")
-        if (name.isEmpty()) throw FinanceException("Please enter a name.")
-        if (name.length > 40) throw FinanceException("Name is too long (max 40 characters).")
-        if (name.equals("Available", ignoreCase = true)) {
-            throw FinanceException("“Available” is reserved for unallocated money.")
+        if (name.isEmpty()) throw FinanceException(S.enterName)
+        if (name.length > 40) throw FinanceException(S.nameTooLong)
+        if (name.equals(EnStrings.available, ignoreCase = true) || name == ArStrings.available) {
+            throw FinanceException(S.availableReserved)
         }
         if (categoryDao.countActiveWithName(name, excludeId) > 0) {
-            throw FinanceException("A category called “$name” already exists.")
+            throw FinanceException(S.categoryExists(name))
         }
         if (input.monthlyLimit != null && input.monthlyLimit <= 0) {
-            throw FinanceException("Monthly limit must be greater than zero.")
+            throw FinanceException(S.limitGtZero)
         }
         if (input.targetAmount != null && input.targetAmount <= 0) {
-            throw FinanceException("Target must be greater than zero.")
+            throw FinanceException(S.targetGtZero)
         }
         return input.copy(name = name)
     }
@@ -234,7 +237,7 @@ class FinanceRepository(
      * past transactions stay intact so historical reports remain correct.
      */
     suspend fun deleteCategory(id: Long): DeleteCategoryResult = db.withTransaction {
-        val c = categoryDao.get(id) ?: throw FinanceException("That category no longer exists.")
+        val c = categoryDao.get(id) ?: throw FinanceException(S.categoryNotExists)
         if (txDao.countForCategory(id) == 0) {
             categoryDao.delete(id)
             return@withTransaction DeleteCategoryResult.Deleted
@@ -248,7 +251,7 @@ class FinanceRepository(
                     amount = balance,
                     categoryId = id,
                     toCategoryId = null,
-                    description = "Returned from ${c.name} (category deleted)",
+                    description = S.returnedFrom(c.name),
                     timestamp = now,
                     createdAt = now,
                     updatedAt = now,
@@ -261,9 +264,9 @@ class FinanceRepository(
     }
 
     suspend fun restoreCategory(id: Long) = db.withTransaction {
-        val c = categoryDao.get(id) ?: throw FinanceException("That category no longer exists.")
+        val c = categoryDao.get(id) ?: throw FinanceException(S.categoryNotExists)
         if (categoryDao.countActiveWithName(c.name, id) > 0) {
-            throw FinanceException("An active category called “${c.name}” already exists. Rename it first.")
+            throw FinanceException(S.activeExists(c.name))
         }
         categoryDao.update(c.copy(archived = false, sortOrder = categoryDao.maxSortOrder() + 1))
     }
@@ -278,7 +281,7 @@ class FinanceRepository(
     /** Replaces all data atomically (used by restore). Validated before anything is deleted. */
     suspend fun replaceAll(categories: List<Category>, transactions: List<MoneyTransaction>) {
         Validation.balanceProblem(categories, transactions, formatter())?.let {
-            throw FinanceException("The backup is inconsistent: $it")
+            throw FinanceException(S.backupInconsistent(it))
         }
         db.withTransaction {
             txDao.deleteAll()

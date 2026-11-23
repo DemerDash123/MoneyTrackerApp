@@ -40,6 +40,8 @@ import com.moneytracker.app.domain.CategorySpend
 import com.moneytracker.app.domain.PeriodSummary
 import com.moneytracker.app.domain.Reports
 import com.moneytracker.app.ui.AppViewModelProvider
+import com.moneytracker.app.i18n.S
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import com.moneytracker.app.ui.LocalMoney
 import com.moneytracker.app.ui.Routes
 import com.moneytracker.app.ui.components.*
@@ -88,9 +90,9 @@ class HomeViewModel(container: AppContainer) : ViewModel() {
 fun HomeScreen(nav: NavController, vm: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by vm.state.collectAsStateWithLifecycle()
     val greeting = when (LocalTime.now().hour) {
-        in 5..11 -> "Good morning"
-        in 12..16 -> "Good afternoon"
-        else -> "Good evening"
+        in 5..11 -> S.goodMorning
+        in 12..16 -> S.goodAfternoon
+        else -> S.goodEvening
     }
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -108,7 +110,7 @@ fun HomeScreen(nav: NavController, vm: HomeViewModel = viewModel(factory = AppVi
                 },
                 actions = {
                     IconButton(onClick = { nav.navigate(Routes.CALENDAR) }) {
-                        Icon(Icons.Rounded.CalendarMonth, contentDescription = "Calendar")
+                        Icon(Icons.Rounded.CalendarMonth, contentDescription = S.calendar)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
@@ -135,16 +137,16 @@ fun HomeScreen(nav: NavController, vm: HomeViewModel = viewModel(factory = AppVi
             item { AllocationCard(s, onOpen = { nav.navigate(Routes.MONEY) }) }
             item { SpendingCard(s, onOpen = { nav.navigate(Routes.stats(0)) }) }
             item {
-                SectionHeader("Recent transactions", action = "See all", onAction = { nav.navigate(Routes.TRANSACTIONS) })
+                SectionHeader(S.recentTransactions, action = S.seeAll, onAction = { nav.navigate(Routes.TRANSACTIONS) })
             }
             if (s.recent.isEmpty()) {
                 item {
                     AppCard {
                         EmptyState(
                             Icons.Rounded.Receipt,
-                            "No transactions yet",
-                            "Add your first income to start tracking where your money goes.",
-                            actionLabel = "Add income",
+                            S.noTransactionsYet,
+                            S.addFirstIncome,
+                            actionLabel = S.addIncome,
                             onAction = { nav.navigate(Routes.add(TxType.INCOME)) },
                         )
                     }
@@ -175,9 +177,9 @@ private fun BalanceHero(b: Balances, onClick: () -> Unit) {
     ) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Total balance", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.labelLarge)
+                Text(S.totalBalance, color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.labelLarge)
                 Spacer(Modifier.weight(1f))
-                Icon(Icons.Rounded.ChevronRight, null, tint = Color.White.copy(alpha = 0.8f))
+                Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = Color.White.copy(alpha = 0.8f))
             }
             Spacer(Modifier.height(4.dp))
             Text(
@@ -191,7 +193,7 @@ private fun BalanceHero(b: Balances, onClick: () -> Unit) {
             Spacer(Modifier.height(18.dp))
             Row {
                 StatBlock(
-                    "Available",
+                    S.available,
                     money.format(b.available),
                     Modifier.weight(1f),
                     tag = "availableBalance",
@@ -199,7 +201,7 @@ private fun BalanceHero(b: Balances, onClick: () -> Unit) {
                     labelColor = Color.White.copy(alpha = 0.75f),
                 )
                 StatBlock(
-                    "Allocated",
+                    S.allocated,
                     money.format(b.allocated),
                     Modifier.weight(1f),
                     tag = "allocatedBalance",
@@ -225,16 +227,16 @@ private fun BalanceHero(b: Balances, onClick: () -> Unit) {
 private fun QuickActions(nav: NavController) {
     val fc = FinanceTheme.colors
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        QuickAction("Income", Icons.Rounded.ArrowDownward, fc.income, Modifier.weight(1f).testTag("quickIncome")) {
+        QuickAction(S.income, Icons.Rounded.ArrowDownward, fc.income, Modifier.weight(1f).testTag("quickIncome")) {
             nav.navigate(Routes.add(TxType.INCOME))
         }
-        QuickAction("Expense", Icons.Rounded.ArrowUpward, fc.expense, Modifier.weight(1f).testTag("quickExpense")) {
+        QuickAction(S.expense, Icons.Rounded.ArrowUpward, fc.expense, Modifier.weight(1f).testTag("quickExpense")) {
             nav.navigate(Routes.add(TxType.EXPENSE))
         }
-        QuickAction("Transfer", Icons.Rounded.SwapHoriz, fc.transfer, Modifier.weight(1f).testTag("quickTransfer")) {
+        QuickAction(S.transfer, Icons.Rounded.SwapHoriz, fc.transfer, Modifier.weight(1f).testTag("quickTransfer")) {
             nav.navigate(Routes.add(TxType.TRANSFER))
         }
-        QuickAction("Allocate", Icons.Rounded.Savings, MaterialTheme.colorScheme.primary, Modifier.weight(1f).testTag("quickAllocate")) {
+        QuickAction(S.allocate, Icons.Rounded.Savings, MaterialTheme.colorScheme.primary, Modifier.weight(1f).testTag("quickAllocate")) {
             nav.navigate(Routes.add(TxType.TRANSFER, from = Routes.AVAILABLE))
         }
     }
@@ -263,24 +265,24 @@ private fun MonthCard(s: HomeState, onOpen: () -> Unit) {
     AppCard(onClick = onOpen, modifier = Modifier.testTag("monthCard")) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("This month", style = MaterialTheme.typography.titleMedium)
+                Text(S.thisMonth, style = MaterialTheme.typography.titleMedium)
                 Text(
                     YearMonth.now().format(Dates.monthYear),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Text("Report", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
-            Icon(Icons.Rounded.ChevronRight, null, tint = MaterialTheme.colorScheme.primary)
+            Text(S.report, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.primary)
         }
         Spacer(Modifier.height(14.dp))
         Row {
-            StatBlock("Income", money.format(s.month.income), Modifier.weight(1f), valueColor = fc.income)
-            StatBlock("Expenses", money.format(s.month.expense), Modifier.weight(1f), valueColor = fc.expense)
+            StatBlock(S.income, money.format(s.month.income), Modifier.weight(1f), valueColor = fc.income)
+            StatBlock(S.expenses, money.format(s.month.expense), Modifier.weight(1f), valueColor = fc.expense)
         }
         Spacer(Modifier.height(12.dp))
         StatBlock(
-            "Remaining this month",
+            S.remainingThisMonth,
             money.format(s.month.net),
             valueColor = if (s.month.net >= 0) MaterialTheme.colorScheme.onSurface else fc.expense,
             valueStyle = MaterialTheme.typography.titleLarge,
@@ -291,16 +293,16 @@ private fun MonthCard(s: HomeState, onOpen: () -> Unit) {
             ProgressBar(used, if (used > 0.9f) fc.expense else MaterialTheme.colorScheme.primary)
             Spacer(Modifier.height(4.dp))
             Text(
-                "${(used * 100).toInt()}% of this month's income spent",
+                S.incomeSpentPct((used * 100).toInt()),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         HorizontalDivider(Modifier.padding(vertical = 14.dp), color = MaterialTheme.colorScheme.outlineVariant)
         Row {
-            StatBlock("Total income (all time)", money.format(s.lifetime.income), Modifier.weight(1f),
+            StatBlock(S.totalIncomeAllTime, money.format(s.lifetime.income), Modifier.weight(1f),
                 valueStyle = MaterialTheme.typography.bodyLarge)
-            StatBlock("Total expenses (all time)", money.format(s.lifetime.expense), Modifier.weight(1f),
+            StatBlock(S.totalExpensesAllTime, money.format(s.lifetime.expense), Modifier.weight(1f),
                 valueStyle = MaterialTheme.typography.bodyLarge)
         }
     }
@@ -314,7 +316,7 @@ private fun BudgetAlerts(alerts: List<BudgetStatus>, onOpen: (Long) -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Rounded.Warning, null, tint = fc.warning)
             Spacer(Modifier.width(8.dp))
-            Text("Budget alerts", style = MaterialTheme.typography.titleMedium)
+            Text(S.budgetAlerts, style = MaterialTheme.typography.titleMedium)
         }
         Spacer(Modifier.height(8.dp))
         alerts.forEach { b ->
@@ -332,8 +334,8 @@ private fun BudgetAlerts(alerts: List<BudgetStatus>, onOpen: (Long) -> Unit) {
                 Column(Modifier.weight(1f)) {
                     Text(b.category.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                     Text(
-                        if (over) "Over budget by ${money.format(-b.remaining)}"
-                        else "${(b.ratio * 100).toInt()}% used · ${money.format(b.remaining)} left",
+                        if (over) S.overBudgetBy(money.format(-b.remaining))
+                        else S.usedLeft((b.ratio * 100).toInt(), money.format(b.remaining)),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (over) fc.expense else fc.warning,
                     )
@@ -350,13 +352,13 @@ private fun AllocationCard(s: HomeState, onOpen: () -> Unit) {
     val cats = s.snapshot.activeCategories
     AppCard(onClick = onOpen) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Where your money is", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-            Icon(Icons.Rounded.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(S.whereMoneyIs, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Spacer(Modifier.height(12.dp))
         if (cats.isEmpty()) {
             Text(
-                "Create categories in My Money to organise your money (Savings, Food, Travel…).",
+                S.createCategoriesHint,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -396,7 +398,7 @@ private fun AllocationCard(s: HomeState, onOpen: () -> Unit) {
                 ) {
                     CategoryBadge(null, size = 34.dp)
                     Spacer(Modifier.height(8.dp))
-                    Text("Available", style = MaterialTheme.typography.bodyMedium)
+                    Text(S.available, style = MaterialTheme.typography.bodyMedium)
                     Text(money.format(s.balances.available), style = MaterialTheme.typography.titleSmall, maxLines = 1)
                 }
             }
@@ -411,12 +413,12 @@ private fun SpendingCard(s: HomeState, onOpen: () -> Unit) {
     var selected by remember { mutableStateOf<Int?>(null) }
     AppCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Spending this month", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-            TextButton(onClick = onOpen) { Text("Statistics") }
+            Text(S.spendingThisMonth, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+            TextButton(onClick = onOpen) { Text(S.navStats) }
         }
         if (s.monthSpending.isEmpty()) {
             Text(
-                "No spending recorded this month.",
+                S.noSpendingThisMonth,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -435,7 +437,7 @@ private fun SpendingCard(s: HomeState, onOpen: () -> Unit) {
                 val sel = selected?.let { slices.getOrNull(it) }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        sel?.label ?: "Spent",
+                        sel?.label ?: S.spent,
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,

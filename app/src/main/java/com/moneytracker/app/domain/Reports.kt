@@ -22,7 +22,7 @@ data class PeriodSummary(val income: Long, val expense: Long, val count: Int) {
 /** Spending of one category (null = paid from Available) in a period. */
 data class CategorySpend(val categoryId: Long?, val amount: Long, val count: Int, val share: Float)
 
-enum class Granularity(val label: String) { DAY("Daily"), WEEK("Weekly"), MONTH("Monthly"), YEAR("Yearly") }
+enum class Granularity { DAY, WEEK, MONTH, YEAR }
 
 data class TrendBucket(val start: LocalDate, val label: String, val income: Long, val expense: Long)
 

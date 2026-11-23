@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 import java.time.temporal.WeekFields
 import java.util.Locale
+import com.moneytracker.app.i18n.I18n
 
 /** Half-open time interval [start, end) in epoch milliseconds. */
 data class TimeRange(val start: Long, val end: Long) {
@@ -52,14 +53,17 @@ object Dates {
     fun weekStart(date: LocalDate, first: DayOfWeek = firstDayOfWeek()): LocalDate =
         date.with(TemporalAdjusters.previousOrSame(first))
 
-    private val en = Locale.ENGLISH
-    val fullDate: DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", en)
-    val mediumDate: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy", en)
-    val shortDate: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM", en)
-    val dayHeader: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, d MMM", en)
-    val time: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm", en)
-    val monthYear: DateTimeFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", en)
-    val shortMonth: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM", en)
-    val shortMonthYear: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM yy", en)
+    // Formatters follow the app language (month and day names). Digits stay Western (DecimalStyle.STANDARD).
+    private fun f(en: String, ar: String = en): DateTimeFormatter =
+        DateTimeFormatter.ofPattern(if (I18n.isRtl) ar else en, I18n.locale)
+
+    val fullDate: DateTimeFormatter get() = f("EEEE, d MMMM yyyy", "EEEE، d MMMM yyyy")
+    val mediumDate: DateTimeFormatter get() = f("d MMM yyyy", "d MMMM yyyy")
+    val shortDate: DateTimeFormatter get() = f("d MMM", "d MMMM")
+    val dayHeader: DateTimeFormatter get() = f("EEE, d MMM", "EEEE، d MMMM")
+    val time: DateTimeFormatter get() = f("HH:mm")
+    val monthYear: DateTimeFormatter get() = f("MMMM yyyy")
+    val shortMonth: DateTimeFormatter get() = f("MMM", "MMMM")
+    val shortMonthYear: DateTimeFormatter get() = f("MMM yy", "MMMM yy")
     val isoDate: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 }

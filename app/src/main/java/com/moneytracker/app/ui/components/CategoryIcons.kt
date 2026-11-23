@@ -67,15 +67,15 @@ object CategoryIcons {
     /** Suggested starter categories (created only when the user taps them). */
     data class Suggestion(val name: String, val icon: String, val color: Int)
 
-    val suggestions: List<Suggestion> = listOf(
-        Suggestion("Savings", "savings", 0xFF10B981.toInt()),
-        Suggestion("Food", "restaurant", 0xFFF59E0B.toInt()),
-        Suggestion("Shopping", "shopping", 0xFFEC4899.toInt()),
-        Suggestion("Transportation", "car", 0xFF3B82F6.toInt()),
-        Suggestion("Education", "school", 0xFF8B5CF6.toInt()),
-        Suggestion("Emergency Fund", "emergency", 0xFFEF4444.toInt()),
-        Suggestion("Entertainment", "movie", 0xFF6366F1.toInt()),
-        Suggestion("Bills", "bills", 0xFF14B8A6.toInt()),
-        Suggestion("Travel", "flight", 0xFF06B6D4.toInt()),
+    private val suggestionStyles = listOf(
+        "savings" to 0xFF10B981, "restaurant" to 0xFFF59E0B, "shopping" to 0xFFEC4899,
+        "car" to 0xFF3B82F6, "school" to 0xFF8B5CF6, "emergency" to 0xFFEF4444,
+        "movie" to 0xFF6366F1, "bills" to 0xFF14B8A6, "flight" to 0xFF06B6D4,
     )
+
+    /** Starter categories, named in the current app language. */
+    val suggestions: List<Suggestion>
+        get() = com.moneytracker.app.i18n.S.suggestionNames.zip(suggestionStyles) { name, (icon, color) ->
+            Suggestion(name, icon, color.toInt())
+        }
 }

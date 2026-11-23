@@ -38,7 +38,11 @@ import java.time.ZoneId
  */
 @RunWith(AndroidJUnit4::class)
 class UiFlowTest {
-    @get:Rule val rule = createAndroidComposeRule<MainActivity>()
+    private val rule = createAndroidComposeRule<MainActivity>()
+
+    @get:Rule val chain: org.junit.rules.RuleChain = org.junit.rules.RuleChain
+        .outerRule(BeforeLaunch { TestSupport.resetApp() })
+        .around(rule)
 
     private val fin get() = TestSupport.container.finance
     private val now get() = System.currentTimeMillis() - 60_000
@@ -49,7 +53,9 @@ class UiFlowTest {
     }
 
     @After fun tearDown() {
-        TestSupport.resetApp()
+        TestSupport.resetData()
+        runBlocking { TestSupport.container.settings.setCurrency("OMR", 3) }
+        TestSupport.container.settings.setTheme(ThemeMode.LIGHT)
     }
 
     private fun snapshot() = runBlocking { fin.currentSnapshot() }

@@ -41,6 +41,7 @@ import com.moneytracker.app.domain.GoalStatus
 import com.moneytracker.app.domain.Ledger
 import com.moneytracker.app.domain.Reports
 import com.moneytracker.app.ui.AppViewModelProvider
+import com.moneytracker.app.i18n.S
 import com.moneytracker.app.ui.LocalMoney
 import com.moneytracker.app.ui.Routes
 import com.moneytracker.app.ui.components.*
@@ -100,7 +101,7 @@ class MyMoneyViewModel(private val container: AppContainer) : ViewModel() {
         viewModelScope.launch {
             message.value = try {
                 container.finance.createCategory(CategoryInput(s.name, s.icon, s.color))
-                "“${s.name}” created"
+                S.categoryCreated(s.name)
             } catch (e: FinanceException) {
                 e.message
             }
@@ -122,7 +123,7 @@ class MyMoneyViewModel(private val container: AppContainer) : ViewModel() {
                         targetDate = category.targetDate?.let { LocalDate.ofEpochDay(it) },
                     ),
                 )
-                if (limit == null) "Budget removed" else "Budget saved"
+                if (limit == null) S.budgetRemoved else S.budgetSaved
             } catch (e: FinanceException) {
                 e.message
             }
@@ -151,7 +152,7 @@ fun MyMoneyScreen(nav: NavController, vm: MyMoneyViewModel = viewModel(factory =
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
-                title = { Text("My Money") },
+                title = { Text(S.navMoney) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
         },
@@ -160,19 +161,19 @@ fun MyMoneyScreen(nav: NavController, vm: MyMoneyViewModel = viewModel(factory =
                 0 -> ExtendedFloatingActionButton(
                     onClick = { nav.navigate(Routes.categoryEdit()) },
                     icon = { Icon(Icons.Rounded.Add, null) },
-                    text = { Text("New category") },
+                    text = { Text(S.newCategory) },
                     modifier = Modifier.testTag("newCategoryFab"),
                 )
                 1 -> ExtendedFloatingActionButton(
                     onClick = { nav.navigate(Routes.categoryEdit(goal = true)) },
                     icon = { Icon(Icons.Rounded.Flag, null) },
-                    text = { Text("New goal") },
+                    text = { Text(S.newGoal) },
                     modifier = Modifier.testTag("newGoalFab"),
                 )
                 else -> ExtendedFloatingActionButton(
                     onClick = { pickBudgetCategory = true },
                     icon = { Icon(Icons.Rounded.Add, null) },
-                    text = { Text("Set budget") },
+                    text = { Text(S.setBudget) },
                     modifier = Modifier.testTag("newBudgetFab"),
                 )
             }
@@ -180,7 +181,7 @@ fun MyMoneyScreen(nav: NavController, vm: MyMoneyViewModel = viewModel(factory =
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             PrimaryTabRow(selectedTabIndex = tab, containerColor = MaterialTheme.colorScheme.background) {
-                listOf("Categories", "Goals", "Budgets").forEachIndexed { i, label ->
+                listOf(S.tabCategories, S.tabGoals, S.tabBudgets).forEachIndexed { i, label ->
                     Tab(
                         selected = tab == i,
                         onClick = { tab = i },
@@ -207,11 +208,11 @@ fun MyMoneyScreen(nav: NavController, vm: MyMoneyViewModel = viewModel(factory =
         AlertDialog(
             onDismissRequest = { pickBudgetCategory = false },
             confirmButton = {},
-            dismissButton = { TextButton(onClick = { pickBudgetCategory = false }) { Text("Cancel") } },
-            title = { Text("Budget for which category?") },
+            dismissButton = { TextButton(onClick = { pickBudgetCategory = false }) { Text(S.cancel) } },
+            title = { Text(S.budgetForWhich) },
             text = {
                 if (cats.isEmpty()) {
-                    Text("Create a category first.")
+                    Text(S.createCategoryFirst)
                 } else {
                     Column {
                         cats.forEach { c ->
@@ -261,8 +262,8 @@ private fun FundsTab(s: MyMoneyState, nav: NavController, vm: MyMoneyViewModel) 
         item {
             AppCard {
                 Row {
-                    StatBlock("Total", money.format(s.balances.total), Modifier.weight(1f))
-                    StatBlock("Allocated", money.format(s.balances.allocated), Modifier.weight(1f))
+                    StatBlock(S.total, money.format(s.balances.total), Modifier.weight(1f))
+                    StatBlock(S.allocated, money.format(s.balances.allocated), Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(12.dp))
                 val segs = s.funds.map { it.balance.toFloat() to Color(it.category.color) } +
@@ -270,7 +271,7 @@ private fun FundsTab(s: MyMoneyState, nav: NavController, vm: MyMoneyViewModel) 
                 SegmentedBar(segs, height = 12.dp)
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    "Allocating money doesn't spend it — your total stays the same until you add income or record an expense.",
+                    S.allocatingHint,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -282,9 +283,9 @@ private fun FundsTab(s: MyMoneyState, nav: NavController, vm: MyMoneyViewModel) 
                     CategoryBadge(null)
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
-                        Text("Available", style = MaterialTheme.typography.titleMedium)
+                        Text(S.available, style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "Not assigned to any category",
+                            S.notAssigned,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -300,10 +301,10 @@ private fun FundsTab(s: MyMoneyState, nav: NavController, vm: MyMoneyViewModel) 
         if (s.funds.isEmpty()) {
             item {
                 AppCard {
-                    Text("Start with some categories", style = MaterialTheme.typography.titleMedium)
+                    Text(S.startWithCategories, style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "Tap a suggestion to create it, or make your own with “New category”.",
+                        S.tapSuggestion,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -339,7 +340,7 @@ private fun FundCard(f: FundItem, onClick: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text(c.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(
-                    "Spent this month ${money.format(f.spentThisMonth)}",
+                    S.spentThisMonth(money.format(f.spentThisMonth)),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -364,7 +365,7 @@ private fun FundCard(f: FundItem, onClick: () -> Unit) {
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                "${money.format(f.spentThisMonth)} of ${money.format(limit)} monthly budget",
+                S.ofMonthlyBudget(money.format(f.spentThisMonth), money.format(limit)),
                 style = MaterialTheme.typography.bodySmall,
                 color = if (ratio > 1f) fc.expense else MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -375,7 +376,7 @@ private fun FundCard(f: FundItem, onClick: () -> Unit) {
             ProgressBar(f.balance.toFloat() / target, Color(c.color))
             Spacer(Modifier.height(4.dp))
             Text(
-                "Goal: ${money.format(f.balance)} of ${money.format(target)}",
+                S.goalProgress(money.format(f.balance), money.format(target)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -397,9 +398,9 @@ private fun GoalsTab(s: MyMoneyState, nav: NavController) {
                 AppCard {
                     EmptyState(
                         Icons.Rounded.Flag,
-                        "No goals yet",
-                        "Create a goal like “New phone — 300 OMR” or “Emergency fund” and add money to it over time.",
-                        actionLabel = "New goal",
+                        S.noGoalsYet,
+                        S.goalsHint,
+                        actionLabel = S.newGoal,
                         onAction = { nav.navigate(Routes.categoryEdit(goal = true)) },
                     )
                 }
@@ -423,11 +424,11 @@ private fun GoalsTab(s: MyMoneyState, nav: NavController) {
                     Column(Modifier.weight(1f)) {
                         Text(c.name, style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "${money.format(g.saved)} of ${money.format(g.target)}",
+                            S.xOfY(money.format(g.saved), money.format(g.target)),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         Text(
-                            if (g.reached) "Goal reached 🎉" else "${money.format(g.remaining)} to go",
+                            if (g.reached) S.goalReached else S.toGo(money.format(g.remaining)),
                             style = MaterialTheme.typography.bodySmall,
                             color = if (g.reached) fc.income else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -439,10 +440,10 @@ private fun GoalsTab(s: MyMoneyState, nav: NavController) {
                     val days = g.daysLeft ?: 0L
                     Text(
                         buildString {
-                            append("Target date ${date.format(Dates.mediumDate)}")
+                            append(S.targetDate(date.format(Dates.mediumDate)))
                             if (!g.reached) {
-                                append(if (days >= 0) " · $days days left" else " · ${-days} days overdue")
-                                g.perMonthNeeded?.let { append(" · save ${money.format(it)}/month") }
+                                append(" · " + if (days >= 0) S.daysLeft(days) else S.daysOverdue(-days))
+                                g.perMonthNeeded?.let { append(" · " + S.savePerMonth(money.format(it))) }
                             }
                         },
                         style = MaterialTheme.typography.bodySmall,
@@ -457,7 +458,7 @@ private fun GoalsTab(s: MyMoneyState, nav: NavController) {
                     ) {
                         Icon(Icons.Rounded.Add, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
-                        Text("Add money")
+                        Text(S.addMoney)
                     }
                 }
             }
@@ -476,7 +477,7 @@ private fun BudgetsTab(s: MyMoneyState, nav: NavController, onEdit: (Category) -
     ) {
         item {
             Text(
-                "Monthly spending limits for ${YearMonth.now().format(Dates.monthYear)}",
+                S.monthlyLimitsFor(YearMonth.now().format(Dates.monthYear)),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -486,8 +487,8 @@ private fun BudgetsTab(s: MyMoneyState, nav: NavController, onEdit: (Category) -
                 AppCard {
                     EmptyState(
                         Icons.Rounded.Speed,
-                        "No budgets",
-                        "Set a monthly limit for any category, e.g. Food — 100 OMR. You'll be warned at 80% and when you go over.",
+                        S.noBudgets,
+                        S.budgetsHint,
                     )
                 }
             }
@@ -504,7 +505,7 @@ private fun BudgetsTab(s: MyMoneyState, nav: NavController, onEdit: (Category) -
                     Spacer(Modifier.width(12.dp))
                     Text(b.category.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                     if (b.state != BudgetState.OK) {
-                        Icon(Icons.Rounded.Warning, contentDescription = "Budget warning", tint = color)
+                        Icon(Icons.Rounded.Warning, contentDescription = S.budgetWarning, tint = color)
                     }
                 }
                 Spacer(Modifier.height(12.dp))
@@ -512,13 +513,13 @@ private fun BudgetsTab(s: MyMoneyState, nav: NavController, onEdit: (Category) -
                 Spacer(Modifier.height(6.dp))
                 Row {
                     Text(
-                        "${money.format(b.spent)} spent",
+                        S.amountSpent(money.format(b.spent)),
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.weight(1f),
                     )
                     Text(
-                        if (b.state == BudgetState.EXCEEDED) "${money.format(-b.remaining)} over"
-                        else "${money.format(b.remaining)} left of ${money.format(b.limit)}",
+                        if (b.state == BudgetState.EXCEEDED) S.amountOver(money.format(-b.remaining))
+                        else S.leftOf(money.format(b.remaining), money.format(b.limit)),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (b.state == BudgetState.EXCEEDED) fc.expense else MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium,
@@ -536,12 +537,12 @@ fun BudgetDialog(category: Category, onDismiss: () -> Unit, onSave: (Long?) -> U
     val parse = money.parse(text)
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Monthly budget — ${category.name}") },
+        title = { Text(S.monthlyBudgetFor(category.name)) },
         text = {
             OutlinedTextField(
                 value = text,
                 onValueChange = { text = it },
-                label = { Text("Limit per month") },
+                label = { Text(S.limitPerMonth) },
                 suffix = { Text(money.currency) },
                 isError = parse is AmountParse.Error,
                 supportingText = { if (parse is AmountParse.Error) Text(parse.message) },
@@ -555,14 +556,14 @@ fun BudgetDialog(category: Category, onDismiss: () -> Unit, onSave: (Long?) -> U
                 onClick = { (parse as? AmountParse.Ok)?.let { onSave(it.milli) } },
                 enabled = parse is AmountParse.Ok,
                 modifier = Modifier.testTag("budgetSave"),
-            ) { Text("Save") }
+            ) { Text(S.save) }
         },
         dismissButton = {
             Row {
                 if (category.monthlyLimit != null) {
-                    TextButton(onClick = { onSave(null) }) { Text("Remove", color = MaterialTheme.colorScheme.error) }
+                    TextButton(onClick = { onSave(null) }) { Text(S.remove, color = MaterialTheme.colorScheme.error) }
                 }
-                TextButton(onClick = onDismiss) { Text("Cancel") }
+                TextButton(onClick = onDismiss) { Text(S.cancel) }
             }
         },
     )

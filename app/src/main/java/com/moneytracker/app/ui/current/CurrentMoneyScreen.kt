@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.moneytracker.app.data.db.TxType
 import com.moneytracker.app.ui.AppViewModelProvider
+import com.moneytracker.app.i18n.S
 import com.moneytracker.app.ui.LocalMoney
 import com.moneytracker.app.ui.Routes
 import com.moneytracker.app.ui.components.*
@@ -40,10 +41,10 @@ fun CurrentMoneyScreen(nav: NavController, vm: HomeViewModel = viewModel(factory
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Current money") },
+                title = { Text(S.currentMoney) },
                 navigationIcon = {
                     IconButton(onClick = { nav.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = S.back)
                     }
                 },
             )
@@ -70,14 +71,14 @@ fun CurrentMoneyScreen(nav: NavController, vm: HomeViewModel = viewModel(factory
                         .background(fc.heroBrush)
                         .padding(22.dp),
                 ) {
-                    Text("Total balance", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.labelLarge)
+                    Text(S.totalBalance, color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.labelLarge)
                     Text(money.format(s.balances.total), color = Color.White, style = AmountStyle.copy(fontSize = 32.sp),
                         modifier = Modifier.testTag("currentTotal"))
                     Spacer(Modifier.height(14.dp))
                     Row {
-                        StatBlock("Available", money.format(s.balances.available), Modifier.weight(1f),
+                        StatBlock(S.available, money.format(s.balances.available), Modifier.weight(1f),
                             valueColor = Color.White, labelColor = Color.White.copy(alpha = 0.75f))
-                        StatBlock("In categories", money.format(s.balances.allocated), Modifier.weight(1f),
+                        StatBlock(S.inCategories, money.format(s.balances.allocated), Modifier.weight(1f),
                             valueColor = Color.White, labelColor = Color.White.copy(alpha = 0.75f))
                     }
                 }
@@ -92,7 +93,7 @@ fun CurrentMoneyScreen(nav: NavController, vm: HomeViewModel = viewModel(factory
                     ) {
                         Icon(Icons.Rounded.Add, null)
                         Spacer(Modifier.width(6.dp))
-                        Text("Add money")
+                        Text(S.addMoney)
                     }
                     Button(
                         onClick = { nav.navigate(Routes.add(TxType.EXPENSE)) },
@@ -102,28 +103,27 @@ fun CurrentMoneyScreen(nav: NavController, vm: HomeViewModel = viewModel(factory
                     ) {
                         Icon(Icons.Rounded.Remove, null)
                         Spacer(Modifier.width(6.dp))
-                        Text("Subtract")
+                        Text(S.subtract)
                     }
                 }
             }
             item {
                 Text(
-                    "Add money for salary, freelancing, gifts or anything you sold. Subtract money for spending — " +
-                        "from Available or from a category. Tap a record to edit or delete it.",
+                    S.currentMoneyHint,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(filter == null, { filter = null }, { Text("All") })
-                    FilterChip(filter == TxType.INCOME, { filter = TxType.INCOME }, { Text("Money in") })
-                    FilterChip(filter == TxType.EXPENSE, { filter = TxType.EXPENSE }, { Text("Money out") })
+                    FilterChip(filter == null, { filter = null }, { Text(S.all) })
+                    FilterChip(filter == TxType.INCOME, { filter = TxType.INCOME }, { Text(S.moneyInLegend) })
+                    FilterChip(filter == TxType.EXPENSE, { filter = TxType.EXPENSE }, { Text(S.moneyOutLegend) })
                 }
             }
             if (records.isEmpty()) {
                 item {
-                    EmptyState(Icons.Rounded.Payments, "Nothing here yet", "Your income and expenses will appear here.")
+                    EmptyState(Icons.Rounded.Payments, S.nothingHereYet, S.incomeExpensesAppearHere)
                 }
             }
             items(records, key = { it.id }) { t ->

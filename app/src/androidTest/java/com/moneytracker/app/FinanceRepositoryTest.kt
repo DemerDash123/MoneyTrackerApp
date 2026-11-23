@@ -225,6 +225,7 @@ class FinanceRepositoryTest {
     @Test fun backupManagerFilesCsvAndPdf() = runBlocking<Unit> {
         val app = ctx.applicationContext as MoneyTrackerApplication
         val c = app.container
+        c.settings.setLanguage(com.moneytracker.app.i18n.AppLanguage.EN)
         c.finance.resetAll()
         val food = c.finance.createCategory(CategoryInput("Food", "restaurant", 1))
         c.finance.addTransaction(TxDraft(TxType.INCOME, u(100.0), null, null, "Salary", "", now))

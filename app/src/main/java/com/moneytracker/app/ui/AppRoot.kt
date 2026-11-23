@@ -7,8 +7,13 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
@@ -136,7 +141,7 @@ fun MoneyTrackerRoot() {
                                 }
                             },
                             icon = { Icon(item.icon, contentDescription = null) },
-                            label = { Text(item.label, maxLines = 1) },
+                            label = { Text(item.label, maxLines = 1, softWrap = false, style = MaterialTheme.typography.labelSmall) },
                             modifier = Modifier.testTag(item.tag),
                         )
                     }
@@ -144,7 +149,13 @@ fun MoneyTrackerRoot() {
             }
         },
     ) { padding ->
-        AppNavHost(nav, Modifier.padding(bottom = padding.calculateBottomPadding()))
+        // On tablets keep content at a comfortable reading width.
+        Box(
+            Modifier.fillMaxSize().padding(bottom = padding.calculateBottomPadding()),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            AppNavHost(nav, Modifier.fillMaxSize().widthIn(max = 760.dp))
+        }
     }
 }
 

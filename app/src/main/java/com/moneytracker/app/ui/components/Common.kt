@@ -44,6 +44,7 @@ fun AppCard(
 ) {
     val shape = CardShape
     val base = modifier
+        .fillMaxWidth()
         .clip(shape)
         .background(MaterialTheme.colorScheme.surfaceContainer)
         .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f), shape)

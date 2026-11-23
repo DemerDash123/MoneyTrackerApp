@@ -620,16 +620,18 @@ private fun MonthlyTab(s: StatsState, vm: StatisticsViewModel, nav: NavControlle
                 Text("Daily spending", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(10.dp))
                 BarChart(
-                    groups = r.dailyExpense.mapIndexed { i, v -> BarGroup((i + 1).toString(), listOf(v, r.dailyIncome[i])) },
-                    series = listOf(BarSeries("Spent", fc.expense), BarSeries("Received", fc.income)),
+                    groups = r.dailyExpense.mapIndexed { i, v -> BarGroup((i + 1).toString(), listOf(v)) },
+                    series = listOf(BarSeries("Spent", fc.expense)),
                     formatValue = money::format,
                     formatAxis = money::compact,
                     testTag = "dailyChart",
                 )
-                Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    LegendDot(fc.expense, "Spent")
-                    LegendDot(fc.income, "Received")
-                }
+                val incomeDays = r.dailyIncome.count { it > 0 }
+                Text(
+                    "Money received on $incomeDays day${if (incomeDays == 1) "" else "s"} this month \u00B7 tap a bar to see that day's spending",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
         item { MonthCategoryTable(s) }

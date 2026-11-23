@@ -383,19 +383,16 @@ private fun DrawScope.drawTooltip(
     }
 }
 
-/** Rounds up to a "nice" axis maximum (1, 2, 2.5, 5 x 10^n). Works in milli-units. */
+/**
+ * Rounds up to a "nice" axis maximum whose quarter steps are round numbers
+ * (e.g. 250 -> 300 gives ticks 75/150/225/300). Works in milli-units.
+ */
 fun niceCeil(v: Long): Long {
     if (v <= 0) return 1000
     val units = v / 1000.0
     if (units <= 1.0) return 1000
     val exp = 10.0.pow(kotlin.math.floor(log10(units)))
     val f = units / exp
-    val nice = when {
-        f <= 1.0 -> 1.0
-        f <= 2.0 -> 2.0
-        f <= 2.5 -> 2.5
-        f <= 5.0 -> 5.0
-        else -> 10.0
-    }
-    return (nice * exp * 1000).toLong()
+    val nice = listOf(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0).first { f <= it + 1e-9 }
+    return Math.round(nice * exp * 1000)
 }

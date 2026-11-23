@@ -15,7 +15,7 @@ class Converters {
     fun stringToType(value: String): TxType = TxType.valueOf(value)
 }
 
-@Database(entities = [Category::class, MoneyTransaction::class], version = 1, exportSchema = true)
+@Database(entities = [Category::class, MoneyTransaction::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao

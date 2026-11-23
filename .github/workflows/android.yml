@@ -1,0 +1,112 @@
+name: Android CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      MT_VERSION_CODE: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Version name
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "MT_VERSION_NAME=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_ENV"
+          else
+            echo "MT_VERSION_NAME=1.0.0" >> "$GITHUB_ENV"
+          fi
+
+      - name: Release keystore
+        env:
+          KS: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KS" ]; then
+            echo "$KS" | base64 -d > "$RUNNER_TEMP/release.jks"
+            {
+              echo "MT_KEYSTORE_PATH=$RUNNER_TEMP/release.jks"
+              echo "MT_KEYSTORE_PASSWORD=$KS_PASS"
+              echo "MT_KEY_ALIAS=$KEY_ALIAS"
+              echo "MT_KEY_PASSWORD=$KEY_PASS"
+            } >> "$GITHUB_ENV"
+            echo "Release signing key configured"
+          else
+            echo "No release key secret: release APK will be signed with the debug key"
+          fi
+
+      - name: Build APKs and run unit tests
+        id: build
+        run: |
+          set +e
+          chmod +x gradlew
+          ./gradlew --no-daemon --stacktrace --continue \
+            testDebugUnitTest assembleDebug assembleDebugAndroidTest assembleRelease 2>&1 | tee build.log
+          echo "rc=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Device tests on Android emulator
+        id: device
+        if: hashFiles('app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk') != ''
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 4096M
+          disk-size: 6000M
+          emulator-boot-timeout: 900
+          disable-animations: true
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash .github/scripts/device-tests.sh
+
+      - name: Publish results to ci-results branch
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/scripts/publish-results.sh "${{ github.run_number }}" "${{ github.sha }}" "${{ steps.build.outputs.rc }}"
+
+      - name: Fail when build or unit tests failed
+        if: steps.build.outputs.rc != '0'
+        run: |
+          echo "Gradle build/unit tests failed (rc=${{ steps.build.outputs.rc }})"
+          exit 1
+
+      - name: Create GitHub release
+        if: success() && startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          cp app/build/outputs/apk/release/app-release.apk "MoneyTracker-${TAG}.apk"
+          NOTES=".github/release-notes.md"
+          gh release create "$TAG" "MoneyTracker-${TAG}.apk" --title "Money Tracker ${TAG}" --notes-file "$NOTES" \
+            || gh release upload "$TAG" "MoneyTracker-${TAG}.apk" --clobber

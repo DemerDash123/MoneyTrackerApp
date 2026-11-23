@@ -1,0 +1,2 @@
+PASS   ScreenshotTour#tour
+1 passed, 0 failed

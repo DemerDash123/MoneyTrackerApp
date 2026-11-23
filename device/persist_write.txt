@@ -1,0 +1,2 @@
+PASS   PersistenceWriteTest#writeKnownData
+1 passed, 0 failed

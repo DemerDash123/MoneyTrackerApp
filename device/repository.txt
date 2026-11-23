@@ -1,0 +1,10 @@
+PASS   FinanceRepositoryTest#editRecalculatesAndDeleteReverses
+PASS   FinanceRepositoryTest#backupRoundTripAndInvalidRestoreKeepsData
+PASS   FinanceRepositoryTest#fileDatabaseSurvivesReopen
+PASS   FinanceRepositoryTest#categoryLifecycle
+PASS   FinanceRepositoryTest#noDuplicates
+PASS   FinanceRepositoryTest#deletingAllocatedIncomeIsRejected
+PASS   FinanceRepositoryTest#specScenario
+PASS   FinanceRepositoryTest#backupManagerFilesCsvAndPdf
+PASS   FinanceRepositoryTest#rejectsInvalidOperationsAtomically
+9 passed, 0 failed

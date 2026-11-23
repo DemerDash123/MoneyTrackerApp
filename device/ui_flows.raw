@@ -1,0 +1,344 @@
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+com.moneytracker.app.UiFlowTest:
+INSTRUMENTATION_STATUS: test=calendarShowsTransactionsOfSelectedDay
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=calendarShowsTransactionsOfSelectedDay
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=monthlyReportShowsTheSelectedMonthOnly
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=monthlyReportShowsTheSelectedMonthOnly
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=searchAndFilterTransactions
+INSTRUMENTATION_STATUS_CODE: 1
+s_glBindAttribLocation: bind attrib 0 name position
+s_glBindAttribLocation: bind attrib 1 name color
+s_glBindAttribLocation: bind attrib 2 name localCoord
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalArgumentException: performMeasureAndLayout called during measure layout
+	at androidx.compose.ui.internal.InlineClassHelperKt.throwIllegalArgumentException(InlineClassHelper.kt:34)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.measureAndLayout(MeasureAndLayoutDelegate.kt:779)
+	at androidx.compose.ui.platform.AndroidComposeView.measureAndLayout(AndroidComposeView.android.kt:1268)
+	at androidx.compose.ui.node.Owner.measureAndLayout$default(Owner.kt:248)
+	at androidx.compose.ui.platform.AndroidComposeView.measureAndLayoutForTest(AndroidComposeView.android.kt:1343)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$1.invoke(ComposeUiTest.android.kt:253)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$1.invoke(ComposeUiTest.android.kt:251)
+	at androidx.compose.ui.test.TestMonotonicFrameClock$performFrame$1.invoke(TestMonotonicFrameClock.jvm.kt:152)
+	at androidx.compose.ui.test.TestMonotonicFrameClock$performFrame$1.invoke(TestMonotonicFrameClock.jvm.kt:132)
+	at androidx.compose.ui.test.FrameDeferringContinuationInterceptor.runWithoutResumingCoroutines(FrameDeferringContinuationInterceptor.jvm.kt:60)
+	at androidx.compose.ui.test.TestMonotonicFrameClock.performFrame(TestMonotonicFrameClock.jvm.kt:132)
+	at androidx.compose.ui.test.TestMonotonicFrameClock.access$performFrame(TestMonotonicFrameClock.jvm.kt:53)
+	at androidx.compose.ui.test.TestMonotonicFrameClock$withFrameNanos$2$1$2.invokeSuspend(TestMonotonicFrameClock.jvm.kt:110)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.internal.DispatchedContinuationKt.resumeCancellableWith(DispatchedContinuation.kt:359)
+	at kotlinx.coroutines.intrinsics.CancellableKt.startCoroutineCancellable(Cancellable.kt:26)
+	at kotlinx.coroutines.CoroutineStart.invoke(CoroutineStart.kt:358)
+	at kotlinx.coroutines.AbstractCoroutine.start(AbstractCoroutine.kt:124)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch(Builders.common.kt:52)
+	at kotlinx.coroutines.BuildersKt.launch(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch$default(Builders.common.kt:43)
+	at kotlinx.coroutines.BuildersKt.launch$default(Unknown Source:1)
+	at androidx.compose.ui.test.TestMonotonicFrameClock.withFrameNanos(TestMonotonicFrameClock.jvm.kt:108)
+	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2.invokeSuspend(Recomposer.kt:585)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at androidx.compose.ui.test.ApplyingContinuationInterceptor$SendApplyContinuation.resumeWith(ApplyingContinuationInterceptor.kt:65)
+	at androidx.compose.ui.test.FrameDeferringContinuationInterceptor$FrameDeferredContinuation.resumeWith(FrameDeferringContinuationInterceptor.jvm.kt:194)
+	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:165)
+	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:154)
+	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:470)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core(CancellableContinuationImpl.kt:504)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core$default(CancellableContinuationImpl.kt:493)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeWith(CancellableContinuationImpl.kt:359)
+	at androidx.compose.runtime.Recomposer$recompositionRunner$2$unregisterApplyObserver$1.invoke(Recomposer.kt:1042)
+	at androidx.compose.runtime.Recomposer$recompositionRunner$2$unregisterApplyObserver$1.invoke(Recomposer.kt:1026)
+	at androidx.compose.runtime.snapshots.SnapshotKt.advanceGlobalSnapshot(Snapshot.kt:1945)
+	at androidx.compose.runtime.snapshots.SnapshotKt.advanceGlobalSnapshot(Snapshot.kt:1960)
+	at androidx.compose.runtime.snapshots.SnapshotKt.access$advanceGlobalSnapshot(Snapshot.kt:1)
+	at androidx.compose.runtime.snapshots.Snapshot$Companion.sendApplyNotifications(Snapshot.kt:692)
+	at androidx.compose.ui.test.ApplyingContinuationInterceptor$SendApplyContinuation.resumeWith(ApplyingContinuationInterceptor.kt:66)
+	at androidx.compose.ui.test.FrameDeferringContinuationInterceptor$FrameDeferredContinuation.resumeWith(FrameDeferringContinuationInterceptor.jvm.kt:194)
+	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:165)
+	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:154)
+	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:470)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core(CancellableContinuationImpl.kt:504)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core$default(CancellableContinuationImpl.kt:493)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeWith(CancellableContinuationImpl.kt:359)
+	at kotlinx.coroutines.flow.StateFlowSlot.makePending(StateFlow.kt:290)
+	at kotlinx.coroutines.flow.StateFlowImpl.updateState(StateFlow.kt:354)
+	at kotlinx.coroutines.flow.StateFlowImpl.setValue(StateFlow.kt:321)
+	at kotlinx.coroutines.flow.StateFlowImpl.emit(StateFlow.kt:378)
+	at kotlinx.coroutines.flow.FlowKt__ZipKt$combine$1$1.invokeSuspend(Zip.kt:29)
+	at kotlinx.coroutines.flow.FlowKt__ZipKt$combine$1$1.invoke(Unknown Source:13)
+	at kotlinx.coroutines.flow.FlowKt__ZipKt$combine$1$1.invoke(Unknown Source:6)
+	at kotlinx.coroutines.flow.internal.CombineKt$combineInternal$2.invokeSuspend(Combine.kt:73)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:589)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:832)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:720)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:707)
+
+INSTRUMENTATION_STATUS: stream=
+Error in searchAndFilterTransactions(com.moneytracker.app.UiFlowTest):
+java.lang.IllegalArgumentException: performMeasureAndLayout called during measure layout
+	at androidx.compose.ui.internal.InlineClassHelperKt.throwIllegalArgumentException(InlineClassHelper.kt:34)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.measureAndLayout(MeasureAndLayoutDelegate.kt:779)
+	at androidx.compose.ui.platform.AndroidComposeView.measureAndLayout(AndroidComposeView.android.kt:1268)
+	at androidx.compose.ui.node.Owner.measureAndLayout$default(Owner.kt:248)
+	at androidx.compose.ui.platform.AndroidComposeView.measureAndLayoutForTest(AndroidComposeView.android.kt:1343)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$1.invoke(ComposeUiTest.android.kt:253)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$1.invoke(ComposeUiTest.android.kt:251)
+	at androidx.compose.ui.test.TestMonotonicFrameClock$performFrame$1.invoke(TestMonotonicFrameClock.jvm.kt:152)
+	at androidx.compose.ui.test.TestMonotonicFrameClock$performFrame$1.invoke(TestMonotonicFrameClock.jvm.kt:132)
+	at androidx.compose.ui.test.FrameDeferringContinuationInterceptor.runWithoutResumingCoroutines(FrameDeferringContinuationInterceptor.jvm.kt:60)
+	at androidx.compose.ui.test.TestMonotonicFrameClock.performFrame(TestMonotonicFrameClock.jvm.kt:132)
+	at androidx.compose.ui.test.TestMonotonicFrameClock.access$performFrame(TestMonotonicFrameClock.jvm.kt:53)
+	at androidx.compose.ui.test.TestMonotonicFrameClock$withFrameNanos$2$1$2.invokeSuspend(TestMonotonicFrameClock.jvm.kt:110)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.internal.DispatchedContinuationKt.resumeCancellableWith(DispatchedContinuation.kt:359)
+	at kotlinx.coroutines.intrinsics.CancellableKt.startCoroutineCancellable(Cancellable.kt:26)
+	at kotlinx.coroutines.CoroutineStart.invoke(CoroutineStart.kt:358)
+	at kotlinx.coroutines.AbstractCoroutine.start(AbstractCoroutine.kt:124)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch(Builders.common.kt:52)
+	at kotlinx.coroutines.BuildersKt.launch(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch$default(Builders.common.kt:43)
+	at kotlinx.coroutines.BuildersKt.launch$default(Unknown Source:1)
+	at androidx.compose.ui.test.TestMonotonicFrameClock.withFrameNanos(TestMonotonicFrameClock.jvm.kt:108)
+	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2.invokeSuspend(Recomposer.kt:585)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at androidx.compose.ui.test.ApplyingContinuationInterceptor$SendApplyContinuation.resumeWith(ApplyingContinuationInterceptor.kt:65)
+	at androidx.compose.ui.test.FrameDeferringContinuationInterceptor$FrameDeferredContinuation.resumeWith(FrameDeferringContinuationInterceptor.jvm.kt:194)
+	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:165)
+	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:154)
+	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:470)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core(CancellableContinuationImpl.kt:504)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core$default(CancellableContinuationImpl.kt:493)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeWith(CancellableContinuationImpl.kt:359)
+	at androidx.compose.runtime.Recomposer$recompositionRunner$2$unregisterApplyObserver$1.invoke(Recomposer.kt:1042)
+	at androidx.compose.runtime.Recomposer$recompositionRunner$2$unregisterApplyObserver$1.invoke(Recomposer.kt:1026)
+	at androidx.compose.runtime.snapshots.SnapshotKt.advanceGlobalSnapshot(Snapshot.kt:1945)
+	at androidx.compose.runtime.snapshots.SnapshotKt.advanceGlobalSnapshot(Snapshot.kt:1960)
+	at androidx.compose.runtime.snapshots.SnapshotKt.access$advanceGlobalSnapshot(Snapshot.kt:1)
+	at androidx.compose.runtime.snapshots.Snapshot$Companion.sendApplyNotifications(Snapshot.kt:692)
+	at androidx.compose.ui.test.ApplyingContinuationInterceptor$SendApplyContinuation.resumeWith(ApplyingContinuationInterceptor.kt:66)
+	at androidx.compose.ui.test.FrameDeferringContinuationInterceptor$FrameDeferredContinuation.resumeWith(FrameDeferringContinuationInterceptor.jvm.kt:194)
+	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:165)
+	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:154)
+	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:470)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core(CancellableContinuationImpl.kt:504)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core$default(CancellableContinuationImpl.kt:493)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeWith(CancellableContinuationImpl.kt:359)
+	at kotlinx.coroutines.flow.StateFlowSlot.makePending(StateFlow.kt:290)
+	at kotlinx.coroutines.flow.StateFlowImpl.updateState(StateFlow.kt:354)
+	at kotlinx.coroutines.flow.StateFlowImpl.setValue(StateFlow.kt:321)
+	at kotlinx.coroutines.flow.StateFlowImpl.emit(StateFlow.kt:378)
+	at kotlinx.coroutines.flow.FlowKt__ZipKt$combine$1$1.invokeSuspend(Zip.kt:29)
+	at kotlinx.coroutines.flow.FlowKt__ZipKt$combine$1$1.invoke(Unknown Source:13)
+	at kotlinx.coroutines.flow.FlowKt__ZipKt$combine$1$1.invoke(Unknown Source:6)
+	at kotlinx.coroutines.flow.internal.CombineKt$combineInternal$2.invokeSuspend(Combine.kt:73)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:589)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:832)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:720)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:707)
+
+INSTRUMENTATION_STATUS: test=searchAndFilterTransactions
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=transferBudgetAndGoalFlows
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=transferBudgetAndGoalFlows
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=currentMoneyAddAndSubtract
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=currentMoneyAddAndSubtract
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=addIncomeAllocateAndSpendThroughUi
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=addIncomeAllocateAndSpendThroughUi
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=deletingCategoryReturnsMoneyAndKeepsHistory
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=deletingCategoryReturnsMoneyAndKeepsHistory
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=themeAndCurrencySettings
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=themeAndCurrencySettings
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=editAndDeleteTransactionFromHistory
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=editAndDeleteTransactionFromHistory
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=invalidInputsAreRejectedAndNothingIsSaved
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.moneytracker.app.UiFlowTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=invalidInputsAreRejectedAndNothingIsSaved
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 91.249
+There was 1 failure:
+1) searchAndFilterTransactions(com.moneytracker.app.UiFlowTest)
+java.lang.IllegalArgumentException: performMeasureAndLayout called during measure layout
+	at androidx.compose.ui.internal.InlineClassHelperKt.throwIllegalArgumentException(InlineClassHelper.kt:34)
+	at androidx.compose.ui.node.MeasureAndLayoutDelegate.measureAndLayout(MeasureAndLayoutDelegate.kt:779)
+	at androidx.compose.ui.platform.AndroidComposeView.measureAndLayout(AndroidComposeView.android.kt:1268)
+	at androidx.compose.ui.node.Owner.measureAndLayout$default(Owner.kt:248)
+	at androidx.compose.ui.platform.AndroidComposeView.measureAndLayoutForTest(AndroidComposeView.android.kt:1343)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$1.invoke(ComposeUiTest.android.kt:253)
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$1.invoke(ComposeUiTest.android.kt:251)
+	at androidx.compose.ui.test.TestMonotonicFrameClock$performFrame$1.invoke(TestMonotonicFrameClock.jvm.kt:152)
+	at androidx.compose.ui.test.TestMonotonicFrameClock$performFrame$1.invoke(TestMonotonicFrameClock.jvm.kt:132)
+	at androidx.compose.ui.test.FrameDeferringContinuationInterceptor.runWithoutResumingCoroutines(FrameDeferringContinuationInterceptor.jvm.kt:60)
+	at androidx.compose.ui.test.TestMonotonicFrameClock.performFrame(TestMonotonicFrameClock.jvm.kt:132)
+	at androidx.compose.ui.test.TestMonotonicFrameClock.access$performFrame(TestMonotonicFrameClock.jvm.kt:53)
+	at androidx.compose.ui.test.TestMonotonicFrameClock$withFrameNanos$2$1$2.invokeSuspend(TestMonotonicFrameClock.jvm.kt:110)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.internal.DispatchedContinuationKt.resumeCancellableWith(DispatchedContinuation.kt:359)
+	at kotlinx.coroutines.intrinsics.CancellableKt.startCoroutineCancellable(Cancellable.kt:26)
+	at kotlinx.coroutines.CoroutineStart.invoke(CoroutineStart.kt:358)
+	at kotlinx.coroutines.AbstractCoroutine.start(AbstractCoroutine.kt:124)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch(Builders.common.kt:52)
+	at kotlinx.coroutines.BuildersKt.launch(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch$default(Builders.common.kt:43)
+	at kotlinx.coroutines.BuildersKt.launch$default(Unknown Source:1)
+	at androidx.compose.ui.test.TestMonotonicFrameClock.withFrameNanos(TestMonotonicFrameClock.jvm.kt:108)
+	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2.invokeSuspend(Recomposer.kt:585)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at androidx.compose.ui.test.ApplyingContinuationInterceptor$SendApplyContinuation.resumeWith(ApplyingContinuationInterceptor.kt:65)
+	at androidx.compose.ui.test.FrameDeferringContinuationInterceptor$FrameDeferredContinuation.resumeWith(FrameDeferringContinuationInterceptor.jvm.kt:194)
+	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:165)
+	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:154)
+	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:470)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core(CancellableContinuationImpl.kt:504)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core$default(CancellableContinuationImpl.kt:493)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeWith(CancellableContinuationImpl.kt:359)
+	at androidx.compose.runtime.Recomposer$recompositionRunner$2$unregisterApplyObserver$1.invoke(Recomposer.kt:1042)
+	at androidx.compose.runtime.Recomposer$recompositionRunner$2$unregisterApplyObserver$1.invoke(Recomposer.kt:1026)
+	at androidx.compose.runtime.snapshots.SnapshotKt.advanceGlobalSnapshot(Snapshot.kt:1945)
+	at androidx.compose.runtime.snapshots.SnapshotKt.advanceGlobalSnapshot(Snapshot.kt:1960)
+	at androidx.compose.runtime.snapshots.SnapshotKt.access$advanceGlobalSnapshot(Snapshot.kt:1)
+	at androidx.compose.runtime.snapshots.Snapshot$Companion.sendApplyNotifications(Snapshot.kt:692)
+	at androidx.compose.ui.test.ApplyingContinuationInterceptor$SendApplyContinuation.resumeWith(ApplyingContinuationInterceptor.kt:66)
+	at androidx.compose.ui.test.FrameDeferringContinuationInterceptor$FrameDeferredContinuation.resumeWith(FrameDeferringContinuationInterceptor.jvm.kt:194)
+	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:165)
+	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:154)
+	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:470)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core(CancellableContinuationImpl.kt:504)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$kotlinx_coroutines_core$default(CancellableContinuationImpl.kt:493)
+	at kotlinx.coroutines.CancellableContinuationImpl.resumeWith(CancellableContinuationImpl.kt:359)
+	at kotlinx.coroutines.flow.StateFlowSlot.makePending(StateFlow.kt:290)
+	at kotlinx.coroutines.flow.StateFlowImpl.updateState(StateFlow.kt:354)
+	at kotlinx.coroutines.flow.StateFlowImpl.setValue(StateFlow.kt:321)
+	at kotlinx.coroutines.flow.StateFlowImpl.emit(StateFlow.kt:378)
+	at kotlinx.coroutines.flow.FlowKt__ZipKt$combine$1$1.invokeSuspend(Zip.kt:29)
+	at kotlinx.coroutines.flow.FlowKt__ZipKt$combine$1$1.invoke(Unknown Source:13)
+	at kotlinx.coroutines.flow.FlowKt__ZipKt$combine$1$1.invoke(Unknown Source:6)
+	at kotlinx.coroutines.flow.internal.CombineKt$combineInternal$2.invokeSuspend(Combine.kt:73)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:589)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:832)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:720)
+	at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:707)
+
+FAILURES!!!
+Tests run: 10,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

@@ -1,0 +1,14 @@
+repository	PASS	9 passed, 0 failed
+ui_flows	FAIL	9 passed, 1 failed
+language_first_launch	PASS	1 passed, 0 failed
+language_switch	PASS	1 passed, 0 failed
+arabic_flows	PASS	3 passed, 0 failed
+screens_phone	PASS	1 passed, 0 failed
+screens_phone_ar	PASS	1 passed, 0 failed
+screens_small	PASS	1 passed, 0 failed
+screens_small_ar	PASS	1 passed, 0 failed
+screens_tablet	PASS	1 passed, 0 failed
+persist_write	PASS	1 passed, 0 failed
+persist_after_force_stop	PASS	1 passed, 0 failed
+persist_after_reboot	PASS	1 passed, 0 failed
+release_apk_smoke	PASS	20 passed, 0 failed

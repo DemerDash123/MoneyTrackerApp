@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.moneytracker.app.MoneyFormatterTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-23T23:13:44" hostname="runnervm0hi8g" time="0.033">
+  <properties/>
+  <testcase name="rejectsTooManyDecimals" classname="com.moneytracker.app.MoneyFormatterTest" time="0.0"/>
+  <testcase name="inputRoundTrips" classname="com.moneytracker.app.MoneyFormatterTest" time="0.0"/>
+  <testcase name="compactLabels" classname="com.moneytracker.app.MoneyFormatterTest" time="0.023"/>
+  <testcase name="rejectsZeroNegativeAndGarbage" classname="com.moneytracker.app.MoneyFormatterTest" time="0.001"/>
+  <testcase name="rejectsAbsurdAmounts" classname="com.moneytracker.app.MoneyFormatterTest" time="0.003"/>
+  <testcase name="acceptsArabicIndicDigits" classname="com.moneytracker.app.MoneyFormatterTest" time="0.0"/>
+  <testcase name="formatsWithConfiguredDecimals" classname="com.moneytracker.app.MoneyFormatterTest" time="0.0"/>
+  <testcase name="parsesWholeAndDecimalAmounts" classname="com.moneytracker.app.MoneyFormatterTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

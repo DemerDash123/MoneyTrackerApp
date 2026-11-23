@@ -1,0 +1,21 @@
+PASS first launch shows the language picker (English / Arabic)
+PASS release app launches and shows the dashboard
+PASS quick 'Income' action found
+PASS add transaction screen opens
+PASS save button found
+PASS income saved through release build (dashboard shows 250.000 OMR)
+PASS tab 'Activity' opens and app is alive
+PASS tab 'My Money' opens and app is alive
+PASS tab 'Statistics' opens and app is alive
+PASS tab 'Settings' opens and app is alive
+PASS tab 'Home' opens and app is alive
+PASS data still there after force-stop + relaunch
+PASS language picker not shown again
+PASS Arabic option present in Settings
+PASS interface switched to Arabic (الإعدادات / الرئيسية)
+PASS Arabic dashboard shows the balance
+PASS Arabic is remembered after restart
+PASS switched back to English
+PASS still alive after language switches
+PASS no crash recorded in logcat
+20 passed, 0 failed

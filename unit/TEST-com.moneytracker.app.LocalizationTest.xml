@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.moneytracker.app.LocalizationTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-23T23:13:44" hostname="runnervm0hi8g" time="0.266">
+  <properties/>
+  <testcase name="everyArabicTextIsTranslated" classname="com.moneytracker.app.LocalizationTest" time="0.025"/>
+  <testcase name="languageSwitchChangesStringsAndDates" classname="com.moneytracker.app.LocalizationTest" time="0.208"/>
+  <testcase name="parameterisedArabicStrings" classname="com.moneytracker.app.LocalizationTest" time="0.008"/>
+  <testcase name="amountsAreIsolatedForRightToLeftText" classname="com.moneytracker.app.LocalizationTest" time="0.021"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

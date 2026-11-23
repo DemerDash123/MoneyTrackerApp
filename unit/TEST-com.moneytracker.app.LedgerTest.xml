@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.moneytracker.app.LedgerTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-11-23T23:13:44" hostname="runnervm0hi8g" time="0.034">
+  <properties/>
+  <testcase name="categoryStatsSplitMovements" classname="com.moneytracker.app.LedgerTest" time="0.005"/>
+  <testcase name="spendingFromCategoryReducesCategoryAndTotal" classname="com.moneytracker.app.LedgerTest" time="0.001"/>
+  <testcase name="allocatingDoesNotChangeTotal" classname="com.moneytracker.app.LedgerTest" time="0.0"/>
+  <testcase name="incomeIncreasesAndExpenseDecreasesTotal" classname="com.moneytracker.app.LedgerTest" time="0.0"/>
+  <testcase name="specExampleAllocationOf500" classname="com.moneytracker.app.LedgerTest" time="0.0"/>
+  <testcase name="balancesBeforeTimestampIgnoreLaterTransactions" classname="com.moneytracker.app.LedgerTest" time="0.0"/>
+  <testcase name="invariantTotalEqualsAvailablePlusCategories" classname="com.moneytracker.app.LedgerTest" time="0.001"/>
+  <testcase name="movingBetweenCategoriesDoesNotChangeTotal" classname="com.moneytracker.app.LedgerTest" time="0.0"/>
+  <testcase name="validationRejectsOverspendingAndOverAllocation" classname="com.moneytracker.app.LedgerTest" time="0.022"/>
+  <testcase name="editingRecalculatesAndDeletingReverses" classname="com.moneytracker.app.LedgerTest" time="0.001"/>
+  <testcase name="deletingAllocatedIncomeIsDetected" classname="com.moneytracker.app.LedgerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

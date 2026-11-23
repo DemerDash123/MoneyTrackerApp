@@ -1,0 +1,36 @@
+PASS   UiFlowTest#calendarShowsTransactionsOfSelectedDay
+PASS   UiFlowTest#monthlyReportShowsTheSelectedMonthOnly
+FAIL   UiFlowTest#searchAndFilterTransactions
+       java.lang.IllegalArgumentException: performMeasureAndLayout called during measure layout
+       	at androidx.compose.ui.internal.InlineClassHelperKt.throwIllegalArgumentException(InlineClassHelper.kt:34)
+       	at androidx.compose.ui.node.MeasureAndLayoutDelegate.measureAndLayout(MeasureAndLayoutDelegate.kt:779)
+       	at androidx.compose.ui.platform.AndroidComposeView.measureAndLayout(AndroidComposeView.android.kt:1268)
+       	at androidx.compose.ui.node.Owner.measureAndLayout$default(Owner.kt:248)
+       	at androidx.compose.ui.platform.AndroidComposeView.measureAndLayoutForTest(AndroidComposeView.android.kt:1343)
+       	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$1.invoke(ComposeUiTest.android.kt:253)
+       	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$1.invoke(ComposeUiTest.android.kt:251)
+       	at androidx.compose.ui.test.TestMonotonicFrameClock$performFrame$1.invoke(TestMonotonicFrameClock.jvm.kt:152)
+       	at androidx.compose.ui.test.TestMonotonicFrameClock$performFrame$1.invoke(TestMonotonicFrameClock.jvm.kt:132)
+       	at androidx.compose.ui.test.FrameDeferringContinuationInterceptor.runWithoutResumingCoroutines(FrameDeferringContinuationInterceptor.jvm.kt:60)
+       	at androidx.compose.ui.test.TestMonotonicFrameClock.performFrame(TestMonotonicFrameClock.jvm.kt:132)
+       	at androidx.compose.ui.test.TestMonotonicFrameClock.access$performFrame(TestMonotonicFrameClock.jvm.kt:53)
+       	at androidx.compose.ui.test.TestMonotonicFrameClock$withFrameNanos$2$1$2.invokeSuspend(TestMonotonicFrameClock.jvm.kt:110)
+       	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+       	at kotlinx.coroutines.internal.DispatchedContinuationKt.resumeCancellableWith(DispatchedContinuation.kt:359)
+       	at kotlinx.coroutines.intrinsics.CancellableKt.startCoroutineCancellable(Cancellable.kt:26)
+       	at kotlinx.coroutines.CoroutineStart.invoke(CoroutineStart.kt:358)
+       	at kotlinx.coroutines.AbstractCoroutine.start(AbstractCoroutine.kt:124)
+       	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch(Builders.common.kt:52)
+       	at kotlinx.coroutines.BuildersKt.launch(Unknown Source:1)
+       	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch$default(Builders.common.kt:43)
+       	at kotlinx.coroutines.BuildersKt.launch$default(Unknown Source:1)
+       	at androidx.compose.ui.test.TestMonotonicFrameClock.withFrameNanos(TestMonotonicFrameClock.jvm.kt:108)
+       	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2.invokeSuspend(Recomposer.kt:585)
+PASS   UiFlowTest#transferBudgetAndGoalFlows
+PASS   UiFlowTest#currentMoneyAddAndSubtract
+PASS   UiFlowTest#addIncomeAllocateAndSpendThroughUi
+PASS   UiFlowTest#deletingCategoryReturnsMoneyAndKeepsHistory
+PASS   UiFlowTest#themeAndCurrencySettings
+PASS   UiFlowTest#editAndDeleteTransactionFromHistory
+PASS   UiFlowTest#invalidInputsAreRejectedAndNothingIsSaved
+9 passed, 1 failed

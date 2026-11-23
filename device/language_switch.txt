@@ -1,0 +1,2 @@
+PASS   LanguageSwitchTest#switchEnglishToArabicAndBack
+1 passed, 0 failed

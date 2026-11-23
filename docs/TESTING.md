@@ -2,7 +2,7 @@
 
 Every number below comes from an actual automated run on GitHub Actions. Nothing is marked as passed unless it ran. The full raw output of the latest run (build log, JUnit XML, instrumentation output, logcat, screenshots, release APK) is on the [`ci-results`](https://github.com/DemerDash123/MoneyTrackerApp/tree/ci-results) branch.
 
-**Reference runs:** CI run #4 (commit `1d6ced0`) and run #6 (commit `f647850`, the build published as release **v1.0.0**), both fully green, 23 Nov 2026. Emulator: Android 14 (API 34, Google APIs, x86_64, Pixel 6 profile).
+**Reference runs:** run #6 (commit `f647850`, release **v1.0.0**) and run #10 (commit `3a67cf4`, release **v1.1.0** with Arabic), both fully green, 23–24 Nov 2026. Emulator: Android 14 (API 34, Google APIs, x86_64, Pixel 6 profile).
 
 ## Results summary
 
@@ -13,14 +13,16 @@ Every number below comes from an actual automated run on GitHub Actions. Nothing
 | Unit (JVM) | `ReportsTest` — monthly reports, trends, budgets, goals, insights, calendar | ✅ 9/9 |
 | Unit (JVM) | `MoneyFormatterTest` — amount parsing/formatting | ✅ 8/8 |
 | Unit (JVM) | `BackupCodecTest` — backup JSON and CSV | ✅ 4/4 |
+| Unit (JVM) | `LocalizationTest` — every Arabic text translated, Arabic dates/plurals/amounts | ✅ 4/4 |
 | Integration (device) | `FinanceRepositoryTest` — real Room database + repository | ✅ 9/9 |
 | End-to-end UI (device) | `UiFlowTest` — real app driven through its UI | ✅ 10/10 |
-| Screens (device) | `ScreenshotTour` on phone 1080×2400, small 720×1280 @320dpi, tablet 1600×2560 @320dpi | ✅ 3/3 |
+| Arabic (device) | `FirstLaunchLanguageTest`, `LanguageSwitchTest` (EN→AR→EN), `ArabicFlowTest` (3 flows in RTL) | ✅ 5/5 |
+| Screens (device) | `ScreenshotTour` in English (phone, small, tablet) and Arabic (phone, small) | ✅ 5/5 |
 | Persistence (device) | write → force-stop app → verify | ✅ |
 | Persistence (device) | write → **reboot emulator** → verify | ✅ |
-| Release APK (device) | install the actual signed, minified release APK and use it (12 checks) | ✅ 12/12 |
+| Release APK (device) | install the actual minified release APK and use it, incl. language picker and Arabic switch (20 checks) | ✅ 20/20 |
 
-Total: **32 unit tests, 22 instrumented tests, 4 persistence checks, 12 release-APK checks — all passing.**
+Total (v1.1.0): **36 unit tests, 27 instrumented tests, 4 persistence checks, 20 release-APK checks — all passing.**
 
 ## What was tested
 
@@ -67,6 +69,15 @@ Covered by `LedgerTest` (pure logic) and repeated against the real database in `
 - A file-based Room database closed and reopened: identical.
 - All screens rendered without errors on a phone, a small phone (360×640 dp) and a tablet (800×1280 dp), in light mode, and the main screens in dark mode. Screenshots: [`docs/screenshots`](screenshots).
 
+### Arabic language (v1.1.0)
+- **Completeness:** a unit test reads every text in the string table and fails if any Arabic text is missing, still in English, or identical to the English one. The table itself is an abstract class, so a text without an Arabic version doesn't even compile.
+- **Formatting:** Arabic month and day names with Western digits, Arabic plural forms (معاملة واحدة / معاملتان / 5 معاملات / 24 معاملة), amounts wrapped in bidi isolates so "−7.000 OMR" never turns around inside Arabic text, and amounts typed with Arabic-Indic digits (٢٥ = 25).
+- **First launch:** with no saved choice the app shows "Choose your language · اختر لغتك"; choosing العربية switches the whole app to Arabic and right-to-left, and the picker doesn't appear again.
+- **Switching both ways:** from Settings, English → العربية → English while the app runs; each time the screen is rebuilt in the new language and the layout direction is checked (RTL for Arabic, LTR for English).
+- **Arabic flows through the UI:** income typed as ٥٠٠ with an Arabic description, a category created from an Arabic suggestion ("طعام"), allocation and spending (balances 500 → 485, Food 85); Arabic validation messages ("أدخل مبلغاً صحيحاً", "المال المتاح غير كافٍ…") with nothing saved; Arabic statistics, monthly report, activity and settings screens.
+- **Release APK:** picker shown on first launch, switch to Arabic in Settings, Arabic dashboard shows the right balance, Arabic remembered after restart, switch back to English.
+- Every screen was captured in Arabic (light and dark, phone and small phone) and reviewed: mirrored layout, navigation and arrows, right-to-left calendar, readable amounts. One issue was found and fixed (negative day totals in the calendar showed as "12-").
+
 ### Release APK (black-box)
 The minified, signed `app-release.apk` was installed on a clean emulator and driven with `adb`/uiautomator only: it launches to the dashboard, an income of 250 entered through the real form appears on the dashboard, all five tabs open, the data is still there after force-stop + relaunch, and logcat contains no crash.
 
@@ -80,6 +91,8 @@ The minified, signed `app-release.apk` was installed on a clean emulator and dri
 | #1 | First screenshot captured a stale first frame | Force a redraw before each capture |
 | #2 (visual review) | Empty "Where your money goes" card didn't fill the width; axis ticks like 63/188; daily chart dominated by the salary day; "My Money" tab label cut to "My" on small phones; content stretched edge-to-edge on tablets | Full-width cards; round axis steps; spending-only daily chart; compact nav labels; 760 dp max content width |
 | #3 | Flaky build: debug and release Room annotation processing wrote the same schema file in parallel ("Empty schema file") | Schema export disabled (single-version database) |
+| #8–#9 | Arabic tests looked for rows that were off-screen in scrolling lists, assumed allocations store an Arabic description, and an Espresso back-press waited for window focus behind a bottom sheet | Tests corrected (all were test mistakes, not app bugs) |
+| #8 (visual review) | Negative daily totals in the Arabic calendar rendered as "12-" | Calendar numbers forced left-to-right |
 | #3 | Compose test harness race ("performMeasureAndLayout called during measure layout") when the DB changes while the test polls | Test polling retries on that specific harness error |
 
 Runs #1–#3 are visible in the repository's Actions history; runs #4 and #6 are all green, and #6 produced the v1.0.0 release APK.

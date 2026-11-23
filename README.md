@@ -4,6 +4,8 @@ A native Android app for managing personal money: see where every amount goes, o
 
 Built with **Kotlin, Jetpack Compose (Material 3) and Room**. Fully offline, no permissions, no ads, no accounts.
 
+**Languages:** English and **Arabic (العربية)** with a full right-to-left interface. Pick a language on first launch or any time in Settings → Language.
+
 [![Android CI](https://github.com/DemerDash123/MoneyTrackerApp/actions/workflows/android.yml/badge.svg)](https://github.com/DemerDash123/MoneyTrackerApp/actions/workflows/android.yml)
 
 **Download:** get the latest APK from [Releases](https://github.com/DemerDash123/MoneyTrackerApp/releases/latest) (Android 8.0 or newer).
@@ -32,7 +34,17 @@ All screenshots are taken automatically by the test suite on an Android 14 emula
 |---|---|---|---|
 | ![](docs/screenshots/phone_18_home_dark.png) | ![](docs/screenshots/phone_19_statistics_dark.png) | ![](docs/screenshots/phone_20_my_money_dark.png) | ![](docs/screenshots/phone_17_current_money.png) |
 
-More (small phone and tablet layouts) are in [`docs/screenshots`](docs/screenshots).
+### Arabic (right-to-left)
+
+| الرئيسية | المعاملات | أموالي | الإحصائيات |
+|---|---|---|---|
+| ![](docs/screenshots/phone_ar_01_home.png) | ![](docs/screenshots/phone_ar_04_transactions.png) | ![](docs/screenshots/phone_ar_07_my_money.png) | ![](docs/screenshots/phone_ar_11_statistics.png) |
+
+| التقرير الشهري | التقويم | الإعدادات | الوضع الداكن |
+|---|---|---|---|
+| ![](docs/screenshots/phone_ar_14_monthly.png) | ![](docs/screenshots/phone_ar_06_calendar.png) | ![](docs/screenshots/phone_ar_16_settings.png) | ![](docs/screenshots/phone_ar_18_home_dark.png) |
+
+More (all Arabic screens, small phone and tablet layouts) are in [`docs/screenshots`](docs/screenshots).
 
 ## Features
 
@@ -88,6 +100,13 @@ More (small phone and tablet layouts) are in [`docs/screenshots`](docs/screensho
 - Export all transactions to CSV (opens in Excel / Google Sheets)
 - Safe reset (type RESET to confirm); deleted categories can be restored
 - Currency is configurable (code/symbol and 0, 2 or 3 decimal places; OMR with 3 by default)
+
+**Languages**
+- English and Arabic, chosen on first launch and switchable any time in Settings
+- Arabic uses a complete right-to-left layout (mirrored navigation, arrows, calendar), Arabic month/day names and Arabic plural forms
+- Amounts stay readable inside Arabic text; amounts can be typed with Arabic-Indic digits (٠١٢٣…)
+- Error messages, CSV export and the PDF monthly report (laid out right-to-left) are translated too
+- Every text is in one compile-checked string table, so a missing translation can't slip through
 
 **Design**
 - Material 3, custom teal/indigo palette, light, dark and system themes

@@ -156,8 +156,8 @@ class ArabicFlowTest {
         assertEquals(u(485.0), s.balances.total)
         val foodId = s.categories.single { it.name == food }.id
         assertEquals(u(85.0), s.balances.of(foodId))
-        // Allocation description is stored in Arabic.
-        assertTrue(s.transactions.any { it.description == ArStrings.allocatedTo(food) })
+        // The allocation is a transfer Available -> Food (title shown as "تخصيص إلى طعام").
+        assertTrue(s.transactions.any { it.type == TxType.TRANSFER && it.categoryId == null && it.toCategoryId == foodId && it.amount == u(100.0) })
 
         compose.onNodeWithContentDescription(ArStrings.back).performClick()
         compose.waitForTagGone("categoryBalance")

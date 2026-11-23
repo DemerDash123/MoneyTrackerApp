@@ -113,7 +113,7 @@ class ScreenshotTour {
             click("txRow_${firstExpense.id}")
             rule.waitForTag("detailEdit")
             shot("05_transaction_detail")
-            androidx.test.espresso.Espresso.pressBack()
+            androidx.test.uiautomator.UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
             rule.waitForTagGone("detailEdit")
             rule.waitForIdle()
 

@@ -2,7 +2,7 @@
 
 Every number below comes from an actual automated run on GitHub Actions. Nothing is marked as passed unless it ran. The full raw output of the latest run (build log, JUnit XML, instrumentation output, logcat, screenshots, release APK) is on the [`ci-results`](https://github.com/DemerDash123/MoneyTrackerApp/tree/ci-results) branch.
 
-**Reference run:** CI run #4, commit `1d6ced0`, 23 Nov 2026. Emulator: Android 14 (API 34, Google APIs, x86_64, Pixel 6 profile).
+**Reference runs:** CI run #4 (commit `1d6ced0`) and run #6 (commit `f647850`, the build published as release **v1.0.0**), both fully green, 23 Nov 2026. Emulator: Android 14 (API 34, Google APIs, x86_64, Pixel 6 profile).
 
 ## Results summary
 
@@ -82,7 +82,7 @@ The minified, signed `app-release.apk` was installed on a clean emulator and dri
 | #3 | Flaky build: debug and release Room annotation processing wrote the same schema file in parallel ("Empty schema file") | Schema export disabled (single-version database) |
 | #3 | Compose test harness race ("performMeasureAndLayout called during measure layout") when the DB changes while the test polls | Test polling retries on that specific harness error |
 
-Runs #1–#3 are visible in the repository's Actions history; run #4 is the all-green reference.
+Runs #1–#3 are visible in the repository's Actions history; runs #4 and #6 are all green, and #6 produced the v1.0.0 release APK.
 
 ## Remaining limitations
 
